@@ -265,6 +265,37 @@ this exact codebase. Read this before touching anything similar.
   (`UIManager.setLayoutAnimationEnabledExperimental(true)`) — iOS has it
   enabled by default. Do this once at module load, not per-call.
 
+## Claude Code automation in this repo
+
+Configured in `.claude/` and `.mcp.json`; the hook scripts live in
+`scripts/hooks/` (plain node - **there is no `jq` on this machine**, so a
+hook that shells out to it silently does nothing).
+
+- **PreToolUse / Bash -> `backend-cwd-guard.js`.** The Bash tool's working
+  directory persists between calls, and this repo has a sibling
+  (`news-khabri-backend`), so a repo-relative command with no leading `cd`
+  runs wherever the last one left the shell. This has produced
+  confidently-wrong results (a backend suite reported as the frontend's).
+  The hook attaches a reminder; it does not block. Prefix commands with an
+  explicit `cd`.
+- **PostToolUse / Edit|Write -> `i18n-locale-check.js`.** Runs
+  `scripts/check-i18n-placeholders.js` when a locale file is edited, and
+  blocks (exit 2) on a mismatch. tsc already guards locale *keys* in both
+  directions - each locale is annotated `Record<TranslationKey, string>`, so a
+  missing key is TS2741 and a stale one TS2353. What it cannot see is a
+  translator dropping or misspelling a `{placeholder}` inside the string.
+- **Stop -> `verify-on-stop.js`.** Runs `tsc --noEmit` then the full jest
+  suite, but only when `git diff HEAD -- src/` is non-empty, so a
+  question-answering turn doesn't trigger a ~100s run. Reports via
+  `systemMessage`; deliberately non-blocking, since a Stop hook that refuses
+  to stop can loop.
+- **Subagents:** `rn-layout-reviewer` (this file's Animated/onLayout lessons
+  turned into a review checklist) and `test-writer`.
+- **Skills:** `/verify-android` (Pixel_10_Pro_XL emulator loop) and
+  `/add-translation-key`. Both are user-invocable only.
+- **MCP:** `context7` for version-pinned Expo/RN docs (this file's opening
+  rule, automated) and `sentry`. Both need approving via `/mcp` once.
+
 ## Repo state
 
 - Hosted at `github.com/notchetan/news-khabri-frontend`, public, `main`
