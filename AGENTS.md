@@ -284,6 +284,25 @@ hook that shells out to it silently does nothing).
   directions - each locale is annotated `Record<TranslationKey, string>`, so a
   missing key is TS2741 and a stale one TS2353. What it cannot see is a
   translator dropping or misspelling a `{placeholder}` inside the string.
+- **PostToolUse / Edit|Write -> `api-contract-check.js`.** When an `src/api/`
+  module is edited, checks the paths it hands `apiFetch` against the routes
+  the sibling backend defines in `src/routes/`. Every api module's tests mock
+  `fetch`, so a path whose route was renamed away still passes tsc and jest
+  here and only fails as a 404 on a device. Paths only, not methods - the
+  method sits in an options object well below the path, and matching on a
+  guess at it was noisier than it was useful. Advisory; silent when the
+  sibling repo isn't checked out beside this one.
+- **PostToolUse / Edit|Write -> `docs-pointer-check.js`.** Checks that the
+  `docs/...md` pointers left in an edited file under `src/` or `docs/` still
+  resolve. The comment convention above turns long explanations into a doc
+  plus a one-line pointer, which makes a renamed or never-written doc a
+  silent dead end - commit 5899e5b was a whole pass cleaning those up. A
+  pointer counts as live if the doc exists in *either* repo, because plenty
+  of them mean the backend's copy and there is no reliable marker for those:
+  the phrase naming the backend wraps onto the previous line as often as not,
+  and `docs/store-submission.md` refers to one with no nearby marker at all.
+  Root markdown is skipped - AGENTS.md describes the convention rather than
+  using it. Advisory, since writing a pointer before the doc is normal.
 - **Stop -> `verify-on-stop.js`.** Runs `tsc --noEmit` then the full jest
   suite, but only when `git diff HEAD -- src/` is non-empty, so a
   question-answering turn doesn't trigger a ~100s run. Reports via
