@@ -310,8 +310,13 @@ hook that shells out to it silently does nothing).
   to stop can loop.
 - **Subagents:** `rn-layout-reviewer` (this file's Animated/onLayout lessons
   turned into a review checklist) and `test-writer`.
-- **Skills:** `/verify-android` (Pixel_10_Pro_XL emulator loop) and
-  `/add-translation-key`. Both are user-invocable only.
+- **Skills:** `/verify-android` (Pixel_10_Pro_XL emulator loop),
+  `/add-translation-key`, `/add-preference` (the
+  `createPersistedPreference` factory, its codec contract, provider order,
+  and the account-bundle/backend-column half that a device-local preference
+  skips) and `/release` (the OTA-vs-store-build fork that
+  `runtimeVersion: appVersion` forces, plus pre-flight). All user-invocable
+  only.
 - **MCP:** `context7` for version-pinned Expo/RN docs (this file's opening
   rule, automated) and `sentry`. Both need approving via `/mcp` once.
 
