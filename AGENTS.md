@@ -308,7 +308,13 @@ hook that shells out to it silently does nothing).
   question-answering turn doesn't trigger a ~100s run. Reports via
   `systemMessage`; deliberately non-blocking, since a Stop hook that refuses
   to stop can loop.
-- **Subagents:** `rn-layout-reviewer` (this file's Animated/onLayout lessons
+- **Subagents:** `translation-reviewer` (the locale failures tsc and the
+  placeholder hook cannot see - wrong terminology within a locale,
+  over-translating a term the other nine keep transliterated, a word bound to
+  two meanings, missing sandhi, a label too long for its control),
+  `a11y-reviewer` (44pt targets, one heading per screen, labelled icon-only
+  controls, font-scale resilience - the checks behind #42, #51, #53 and #57),
+  `rn-layout-reviewer` (this file's Animated/onLayout lessons
   turned into a review checklist) and `test-writer`.
 - **Skills:** `/verify-android` (Pixel_10_Pro_XL emulator loop),
   `/add-translation-key`, `/add-preference` (the
