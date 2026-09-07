@@ -27,6 +27,18 @@
             "command": "node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/i18n-locale-check.js\"",
             "timeout": 30,
             "statusMessage": "Checking i18n placeholders..."
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/api-contract-check.js\"",
+            "timeout": 15,
+            "statusMessage": "Checking API paths against the backend..."
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/scripts/hooks/docs-pointer-check.js\"",
+            "timeout": 15,
+            "statusMessage": "Checking docs pointers..."
           }
         ]
       }
