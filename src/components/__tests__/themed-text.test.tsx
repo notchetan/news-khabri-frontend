@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { render, screen, waitFor } from "@testing-library/react-native";
 import { StyleSheet } from "react-native";
 
+import { Colors } from "@/constants/theme";
 import { FontSizePreferenceProvider } from "@/contexts/font-size-preference";
 
 import { ThemePreferenceProvider } from "@/contexts/theme-preference";
@@ -54,7 +55,11 @@ describe("ThemedText", () => {
     const node = screen.getByText("Hello");
     const flatStyle = [node.props.style].flat();
     expect(flatStyle).toEqual(
-      expect.arrayContaining([expect.objectContaining({ color: "#A8552E" })])
+      // The token, not its literal - this assertion is about
+      // linkPrimary resolving to tint, not about which hex tint is.
+      expect.arrayContaining([
+        expect.objectContaining({ color: Colors.light.tint }),
+      ])
     );
   });
 
