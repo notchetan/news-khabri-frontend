@@ -91,7 +91,8 @@ export default function SavedScreen() {
         <Pressable
           testID="saved-clear-all"
           onPress={confirmClearAll}
-          hitSlop={8}
+          // A single 14pt line is about 20pt tall; 14 each side clears 48.
+          hitSlop={{ top: 14, bottom: 14, left: 8, right: 8 }}
           accessibilityRole="button"
           accessibilityLabel={t("clearAll")}
         >

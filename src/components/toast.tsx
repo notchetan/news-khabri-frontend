@@ -113,7 +113,8 @@ export default function Toast({
               shown.action?.onPress();
               onHide();
             }}
-            hitSlop={8}
+            // A single 14pt line is about 20pt tall; 14 each side clears 48.
+            hitSlop={{ top: 14, bottom: 14, left: 8, right: 8 }}
             accessibilityRole="button"
             accessibilityLabel={shown.action.label}
           >

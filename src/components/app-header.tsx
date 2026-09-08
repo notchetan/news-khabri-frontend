@@ -4,7 +4,7 @@ import { SymbolView } from "expo-symbols";
 import { Image, Platform, Pressable, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { Radius, Spacing } from "@/constants/theme";
+import { MIN_TOUCH_TARGET, Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
@@ -57,7 +57,7 @@ export default function AppHeader({ title }: Props) {
         <Pressable
           testID="app-header-saved-button"
           onPress={() => router.push("/saved")}
-          hitSlop={8}
+          style={styles.actionButton}
           accessibilityRole="button"
           accessibilityLabel={t("savedArticlesTitle")}
         >
@@ -73,7 +73,7 @@ export default function AppHeader({ title }: Props) {
         <Pressable
           testID="app-header-profile-button"
           onPress={() => router.push("/profile")}
-          hitSlop={8}
+          style={styles.actionButton}
           accessibilityRole="button"
           accessibilityLabel={t("tabProfile")}
         >
@@ -121,7 +121,19 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   logo: { width: 28, height: 28 },
-  actions: { flexDirection: "row", alignItems: "center", gap: Spacing.three },
+  // A real box rather than a hitSlop: a 24pt icon with hitSlop 8 came to
+  // 40pt, under either platform's minimum. The row has the width for it -
+  // titleGroup already flexShrinks to make room.
+  actionButton: {
+    minWidth: MIN_TOUCH_TARGET,
+    minHeight: MIN_TOUCH_TARGET,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // Tightened from Spacing.three now that each button carries its own
+  // MIN_TOUCH_TARGET box, which already separates them well past the 8pt
+  // minimum gap.
+  actions: { flexDirection: "row", alignItems: "center", gap: Spacing.one },
   avatar: { width: 28, height: 28, borderRadius: Radius.full },
   // See docs/cross-script-text-rendering.md.
   title: {

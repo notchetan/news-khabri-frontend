@@ -193,7 +193,8 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
               <Pressable
                 style={styles.infoBadge}
                 onPress={() => setShowCaption(true)}
-                hitSlop={8}
+                // 26pt visual + 11 each side = 48, over the hero image.
+                hitSlop={11}
                 accessibilityRole="button"
                 accessibilityLabel={t("showPhotoCredit")}
               >

@@ -15,7 +15,7 @@ import {
   View,
 } from "react-native";
 
-import { Radius, Spacing } from "@/constants/theme";
+import { MIN_TOUCH_TARGET, Radius, Spacing } from "@/constants/theme";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
@@ -174,8 +174,8 @@ export default function CategoryPills({
             )}
             {isScrolled && (
               <TouchableOpacity
+                testID="category-pills-back-arrow"
                 onPress={scrollToStart}
-                hitSlop={8}
                 accessibilityRole="button"
                 accessibilityLabel={t("scrollToFirstCategory")}
                 style={styles.backArrow}
@@ -403,7 +403,11 @@ function Pill({
 const PILL_MIN_HEIGHT = 44;
 const PILL_GAP = Spacing.three;
 const PILL_ITEM_GAP = 14;
-const DIVIDER_SLOT_GAP = 10;
+// 0, not 10. The slot below is now MIN_TOUCH_TARGET wide rather than 14,
+// and since everything in it is centred, widening the slot and removing
+// the gap puts the divider in very nearly the same place while giving the
+// back arrow a real target. See docs/category-pills-layout.md.
+const DIVIDER_SLOT_GAP = 0;
 
 const styles = StyleSheet.create({
   row: {
@@ -418,14 +422,25 @@ const styles = StyleSheet.create({
     gap: DIVIDER_SLOT_GAP,
   },
   pinnedContainer: { paddingLeft: PILL_GAP },
-  // Fixed width, not the icon's own 20px size prop - see
-  // docs/category-pills-layout.md.
-  dividerSlot: { width: 14, alignItems: "center", justifyContent: "center" },
+  // See docs/category-pills-layout.md. Its width doubles as the back
+  // arrow's touch target, which is why it is MIN_TOUCH_TARGET and not the
+  // chevron's own 20pt: RN does not dispatch touches outside a parent's
+  // bounds, so at 14pt the arrow's tappable width was 14pt however much
+  // hitSlop it carried.
+  dividerSlot: {
+    width: MIN_TOUCH_TARGET,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   divider: { width: 2, height: 24, borderRadius: 1 },
-  // No horizontal padding - hitSlop below already gives this a comfortable
-  // touch target without also widening the *visual* gap on either side
-  // beyond what `row`'s gap already provides.
-  backArrow: { paddingVertical: 8 },
+  // Fills the slot, so the whole slot is tappable rather than just the
+  // chevron's own ink.
+  backArrow: {
+    alignSelf: "stretch",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   backArrowText: { fontSize: 20, fontWeight: "700" },
   scrollView: { flexShrink: 1, flexGrow: 0 },
   container: {
