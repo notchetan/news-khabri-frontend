@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Alert, Animated, FlatList, Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import EmptyState from "@/components/empty-state";
 import FeedCard, { CARD_PADDING } from "@/components/feed-card";
 import FloatingDetailHeader, {
   getContentTopPadding,
@@ -127,23 +128,13 @@ export default function SavedScreen() {
           { paddingTop: contentTopPadding, paddingBottom: contentBottomPadding },
         ]}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <SymbolView
-              name="bookmark"
-              size={40}
-              weight="regular"
-              tintColor={theme.textSecondary}
-              fallback={
-                <Ionicons name="bookmark-outline" size={40} color={theme.textSecondary} />
-              }
-            />
-            <ThemedText type="subtitle" style={styles.emptyTitle}>
-              {t("noSavedArticles")}
-            </ThemedText>
-            <ThemedText themeColor="textSecondary" style={styles.emptyMessage}>
-              {t("noSavedArticlesDescription")}
-            </ThemedText>
-          </View>
+          <EmptyState
+            testID="saved-empty"
+            symbolName="bookmark"
+            ioniconName="bookmark-outline"
+            title={t("noSavedArticles")}
+            description={t("noSavedArticlesDescription")}
+          />
         }
         renderItem={({ item }) => (
           <FeedCard
@@ -180,13 +171,4 @@ const styles = StyleSheet.create({
   },
   titleText: { flexShrink: 1 },
   clearAll: { fontWeight: "600" },
-  empty: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: Spacing.five,
-    gap: Spacing.two,
-  },
-  emptyTitle: { textAlign: "center" },
-  emptyMessage: { textAlign: "center" },
 });
