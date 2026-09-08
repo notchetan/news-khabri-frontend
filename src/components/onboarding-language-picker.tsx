@@ -53,8 +53,14 @@ export function OnboardingLanguagePicker({ style }: { style?: ViewStyle }) {
 
       {isOpen && (
         <ThemedView
+          testID="onboarding-language-dropdown"
           type="backgroundElement"
-          style={[styles.dropdown, { borderColor: theme.backgroundSelected }]}
+          // textSecondary, not backgroundSelected: this popup floats over
+          // the welcome screen, and its own surface is only 1.12:1 against
+          // that background, so the border is the entire boundary. At
+          // backgroundSelected the border was 1.31:1 and the whole edge was
+          // invisible. Same reasoning as the category-pills divider.
+          style={[styles.dropdown, { borderColor: theme.textSecondary }]}
         >
           {/* Every language at once, no scroll - a scrollable list here
               risks a reader never realizing there's more below the fold
@@ -121,7 +127,14 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     overflow: "hidden",
     zIndex: 10,
+    // elevation is Android-only and was carrying this alone; iOS had no
+    // depth cue at all behind a surface that barely differs from the
+    // background it covers.
     elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
     // A fixed width so the two 50%-wide cells below are a predictable size
     // rather than sized to whichever endonym happens to be widest. Centered
     // under the pill by `container`'s own alignItems, and comfortably inside
