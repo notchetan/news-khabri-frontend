@@ -66,6 +66,21 @@ export const Radius = {
   full: 9999,
 } as const;
 
+// The platform's own minimum touch target: 44pt on iOS (Apple HIG), 48dp
+// on Android (Material). One constant rather than 44 everywhere, because
+// the two really do differ and a single 44 silently under-serves Android.
+//
+// Prefer giving the control this as a real minWidth/minHeight where the
+// layout allows it. A hitSlop is the fallback for something overlaid on a
+// larger parent (a bookmark on a card image, say) - and never works at
+// all where the slop would reach past the parent's own bounds, which RN
+// does not dispatch touches outside of.
+export const MIN_TOUCH_TARGET = Platform.select({
+  ios: 44,
+  android: 48,
+  default: 44,
+});
+
 // Standard tab bar content heights (49pt iOS, 80dp Android - Material 3's
 // NavigationBar spec) - added *on top of* insets.bottom, not instead of
 // it. See docs/android-tab-bar.md and AGENTS.md's own

@@ -15,13 +15,25 @@ the row's total width, which visibly made the `ScrollView` after it jump
 sideways on every swap. The slot's own width never changes; only what's
 centered inside it does.
 
-The slot's width (14) isn't the icon's own `size` prop (20) - that's the
-icon's full bounding box, not its actual rendered ink. A left-chevron
-glyph is narrower than it is tall, so most of that 20px was dead space
-that the *divider* also got centered inside (on top of its own row gap),
-reading as a noticeably bigger gap around the divider specifically than
-everywhere else in the row. 14 is a closer (still estimated, not
-measured) fit for the chevron's true width.
+The slot's width is `MIN_TOUCH_TARGET`, and that is a touch-target
+decision rather than a visual one. It used to be 14 - chosen as a close
+fit for the chevron's true ink, since a left-chevron glyph is narrower
+than its 20pt bounding box and the *divider* got centered inside that
+same slot, reading as a bigger gap around the divider than elsewhere in
+the row.
+
+14pt is not tappable. RN does not dispatch touches outside a parent's
+bounds, so the back arrow's tappable width was 14pt no matter how much
+`hitSlop` it carried - the `hitSlop={8}` it used to have bought nothing
+horizontally.
+
+The separation the old 14pt slot plus a 10pt `DIVIDER_SLOT_GAP` produced
+is now supplied by the slot's width alone, with `DIVIDER_SLOT_GAP` at 0.
+Everything in the slot is centered, so moving the space out of the gap
+and into the width leaves the divider in very nearly the same place while
+giving the arrow a real target. `backArrow` fills the slot
+(`flex: 1`, `alignSelf: "stretch"`) so the whole thing is tappable rather
+than just the chevron.
 
 ## The touchable is the capsule, not something inside it
 
@@ -67,11 +79,14 @@ Three different spacing constants, deliberately not unified into one:
   specifically so the pinned pill's left edge lines up with the
   article/story cards' own left edge below it - a fixed design constraint
   tied to the rest of the page's layout.
-- `DIVIDER_SLOT_GAP` (10) is the gap on either side of `dividerSlot`
+- `DIVIDER_SLOT_GAP` (0) is the gap on either side of `dividerSlot`
   specifically: pinned pill -> divider/back-arrow slot, and slot -> the
   scrollable strip. Driven by `row`'s own `gap` property, which - because
   `dividerSlot` and the `ScrollView` are `row`'s only other children -
-  only ever applies in those two places, nowhere else in the row.
+  only ever applies in those two places, nowhere else in the row. It is 0
+  because the slot's own `MIN_TOUCH_TARGET` width now supplies that
+  separation (see above); it stays a separate named constant rather than
+  being deleted, so the three spacings remain independently adjustable.
 - `PILL_ITEM_GAP` (14) is the space *between* the scrollable pills
   themselves, inside the `ScrollView`'s own `contentContainerStyle`
   (`container`) - a separate, visual-density-only choice, intentionally

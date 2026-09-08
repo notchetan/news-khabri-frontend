@@ -236,7 +236,14 @@ describe("CategoryPills", () => {
     expect(slot).toHaveStyle({ width: initialWidth });
   });
 
-  it("uses a 10px gap around the divider/back-arrow slot specifically, independent of the wider gap between scrollable pills", async () => {
+  // The separation around the divider used to come from row's own gap (10)
+  // with a 14pt slot between. It now comes from the slot's own width, which
+  // has to be a real touch target for the back arrow that shares it - RN
+  // does not dispatch touches outside a parent's bounds, so no amount of
+  // hitSlop could widen a 14pt slot. Everything in the slot is centred, so
+  // moving the space from the gap into the width leaves the divider in
+  // very nearly the same place.
+  it("sizes the divider/back-arrow slot as a real touch target, with the row's gap folded into it", async () => {
     await renderWithTheme(
       <CategoryPills
         categories={["All", "Sports", "Business"]}
@@ -245,9 +252,39 @@ describe("CategoryPills", () => {
       />
     );
 
-    // The row's own gap only applies around the divider/back-arrow slot -
-    // deliberately smaller than the gap between scrollable pills (still 14).
-    expect(screen.getByTestId("category-pills-row")).toHaveStyle({ gap: 10 });
+    const slotWidth = StyleSheet.flatten(
+      screen.getByTestId("category-pills-divider-slot").props.style
+    ).width;
+    const rowGap = StyleSheet.flatten(
+      screen.getByTestId("category-pills-row").props.style
+    ).gap;
+
+    expect(slotWidth).toBeGreaterThanOrEqual(44);
+    expect(rowGap).toBe(0);
+    // Still independent of the gap between scrollable pills, which is the
+    // point of keeping three separate constants.
+    expect(rowGap).not.toBe(14);
+  });
+
+  it("makes the whole slot tappable, not just the chevron's own ink", async () => {
+    await renderWithTheme(
+      <CategoryPills
+        categories={["All", "Sports", "Business"]}
+        selected="All"
+        onSelect={jest.fn()}
+      />
+    );
+    const scrollView = screen.getByTestId("category-pills-scroll-view");
+
+    await act(async () => {
+      fireEvent.scroll(scrollView, { nativeEvent: { contentOffset: { x: 50 } } });
+    });
+
+    const arrow = StyleSheet.flatten(
+      screen.getByTestId("category-pills-back-arrow").props.style
+    );
+    expect(arrow.flex).toBe(1);
+    expect(arrow.alignSelf).toBe("stretch");
   });
 
   it("colors the divider from the current theme's own secondary text color in light mode, matching the back arrow it shares a slot with", async () => {

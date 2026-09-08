@@ -75,7 +75,10 @@ export default function FeedCard({
           <TouchableOpacity
             testID={bookmarkTestID}
             onPress={onToggleBookmark}
-            hitSlop={8}
+            // 28pt visual + 10 each side = 48. Slop rather than a bigger
+            // box because the pill is overlaid on the card image and
+            // growing it would cover more of the photo.
+            hitSlop={10}
             style={styles.bookmarkButton}
             accessibilityRole="button"
             accessibilityState={{ selected: !!bookmarked }}
