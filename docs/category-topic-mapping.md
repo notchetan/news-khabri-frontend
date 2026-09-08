@@ -17,5 +17,5 @@ split from general sports - popular enough in India to earn its own icon
 rather than sharing sports'.
 
 The `"politics"` topic is effectively the "india"/national-news bucket in
-practice - see `docs/category-icon-emoji.md` for why its icon is the India
-flag, not a generic government building.
+practice - see `docs/category-icons.md` for why a government-building icon is the
+right read for it.

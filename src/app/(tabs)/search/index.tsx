@@ -29,7 +29,8 @@ import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { categoryLabelKey } from "@/utils/category-label";
-import { getCategoryIcon } from "@/utils/category-icon";
+import { getCategoryGlyph } from "@/utils/category-glyph";
+import { getCategoryIonicon } from "@/utils/category-ionicon";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const SEARCH_MIN_LENGTH = 2;
@@ -43,6 +44,9 @@ const SEARCH_MIN_LENGTH = 2;
 const GRID_PADDING = Spacing.three;
 const GRID_GAP = Spacing.three;
 const CARD_ASPECT_RATIO = 1.4;
+// Was a 26pt emoji. Tinted rather than monochrome so the grid keeps the
+// colour the emoji gave it - see docs/category-icons.md.
+const CARD_ICON_SIZE = 28;
 
 export default function SearchScreen() {
   const { language } = useLanguagePreference();
@@ -185,7 +189,18 @@ export default function SearchScreen() {
                   accessibilityLabel={label}
                   style={[styles.card, { width: cardWidth, height: cardHeight }]}
                 >
-                  <Text style={styles.cardIcon}>{getCategoryIcon(cat)}</Text>
+                  <SymbolView
+                    name={getCategoryGlyph(cat)}
+                    size={CARD_ICON_SIZE}
+                    tintColor={theme.tint}
+                    fallback={
+                      <Ionicons
+                        name={getCategoryIonicon(cat)}
+                        size={CARD_ICON_SIZE}
+                        color={theme.tint}
+                      />
+                    }
+                  />
                   {/* unscaled: the card's height is derived from its width
                       via CARD_ASPECT_RATIO, so it cannot grow with the
                       reader's font-size preference. Same reasoning as the
@@ -257,6 +272,5 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  cardIcon: { fontSize: 26 },
   cardLabel: { fontSize: 14, fontWeight: "600" },
 });

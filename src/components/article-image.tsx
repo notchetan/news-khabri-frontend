@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
@@ -8,7 +9,7 @@ import { Radius } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { getCategoryGlyph } from "@/utils/category-glyph";
-import { getCategoryIcon } from "@/utils/category-icon";
+import { getCategoryIonicon } from "@/utils/category-ionicon";
 
 type Props = {
   uri: string | null;
@@ -61,9 +62,11 @@ export default function ArticleImage({
             size={36}
             tintColor={theme.textSecondary}
             fallback={
-              <Text style={styles.placeholderFallbackIcon}>
-                {uri ? "⚠️" : getCategoryIcon(category)}
-              </Text>
+              <Ionicons
+                name={uri ? "warning" : getCategoryIonicon(category)}
+                size={36}
+                color={theme.textSecondary}
+              />
             }
           />
           {uri && (
@@ -101,7 +104,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
   },
-  placeholderFallbackIcon: { fontSize: 32 },
   // Plain Text: this sits inside a fixed-height image placeholder, so it
   // deliberately does not grow with the font-size preference.
   placeholderText: { fontSize: 13 },
