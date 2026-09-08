@@ -439,4 +439,59 @@ describe("CategoryPills", () => {
     fireEvent.press(screen.getByRole("button", { name: "Top Stories" }));
     expect(onSelect).toHaveBeenCalledWith("Top Stories");
   });
+
+  // Both pill kinds previously left the tappable box smaller than the
+  // capsule it sat in. The pinned one was the worse of the two: with the
+  // collapse animation both labels are position: absolute, so its
+  // touchable had no in-flow content and shrank to its own padding.
+  it("gives the scrollable pills the 44pt touch-target minimum", async () => {
+    await renderWithTheme(
+      <CategoryPills
+        categories={["Top Stories", "Sports", "Business"]}
+        selected="Top Stories"
+        onSelect={jest.fn()}
+      />
+    );
+
+    for (const category of ["Sports", "Business"]) {
+      const pill = screen.getByTestId(`category-pill-${category}`);
+      expect(StyleSheet.flatten(pill.props.style).minHeight).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  it("gives the pinned pill's touchable the 44pt minimum, not just its capsule", async () => {
+    await renderWithTheme(
+      <CategoryPills
+        categories={["Top Stories", "Sports"]}
+        selected="Top Stories"
+        onSelect={jest.fn()}
+        pinnedCollapsedLabel="Top"
+      />
+    );
+
+    const touchable = screen.getByTestId("pinned-pill-touchable");
+    expect(StyleSheet.flatten(touchable.props.style).minHeight).toBeGreaterThanOrEqual(44);
+  });
+
+  // A 44pt pill plus the scroll container's own vertical padding has to fit
+  // inside the row, or the taller pills are clipped by it.
+  it("keeps the pills inside the row's fixed height", async () => {
+    await renderWithTheme(
+      <CategoryPills
+        categories={["Top Stories", "Sports"]}
+        selected="Top Stories"
+        onSelect={jest.fn()}
+      />
+    );
+
+    const row = StyleSheet.flatten(screen.getByTestId("category-pills-row").props.style);
+    const content = StyleSheet.flatten(
+      screen.getByTestId("category-pills-scroll-view").props.contentContainerStyle
+    );
+    const pill = StyleSheet.flatten(
+      screen.getByTestId("category-pill-Sports").props.style
+    );
+
+    expect(pill.minHeight + content.paddingVertical * 2).toBeLessThanOrEqual(row.height);
+  });
 });

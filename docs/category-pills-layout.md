@@ -23,6 +23,32 @@ reading as a noticeably bigger gap around the divider specifically than
 everywhere else in the row. 14 is a closer (still estimated, not
 measured) fit for the chevron's true width.
 
+## The touchable is the capsule, not something inside it
+
+`pillInner` carries the pill's padding and its `minHeight`, and it is
+applied to whatever actually receives the tap - the `TouchableOpacity`
+itself in the plain `Pill`, and the inner touchable in `PinnedPill`. The
+outer `Animated.View` in `PinnedPill` is only a background capsule and an
+animated width, so `pillOuterReset` zeroes its padding; the two must not
+both apply it.
+
+This was previously split the other way and both pill kinds ended up with
+a tappable box smaller than the capsule drawn around it. `PinnedPill` was
+the worse of the two: with a collapsed label configured, both of its
+labels are `position: "absolute"` (that is what makes them cross-fade in
+place), so its touchable had no in-flow content at all and shrank to its
+own vertical padding.
+
+A `hitSlop` would have been the lighter fix and is wrong here: RN's
+hitSlop never extends past the parent's bounds, and `PinnedPill`'s
+touchable sits inside an `Animated.View` sized to the pill, so the slop
+would have been silently clipped on Android. The visible capsule is
+`PILL_MIN_HEIGHT` tall instead.
+
+`container`'s `paddingVertical` is 6 rather than 10 for the same reason:
+`PILL_MIN_HEIGHT` plus that padding on both sides has to come to `row`'s
+own fixed height, or the taller pills get clipped by it.
+
 ## Divider color matches the back arrow's icon color
 
 The divider uses `theme.textSecondary`, the same color the back arrow's
