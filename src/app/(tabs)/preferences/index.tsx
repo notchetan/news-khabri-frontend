@@ -461,6 +461,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  // Plain Text: the emoji fallback for an SF Symbol, inside the fixed
+  // 44x44 iconButton above - it does not take the font-size preference.
   iconGlyph: { fontSize: 18 },
   // See docs/cross-script-text-rendering.md.
   fontSizeSampleGlyph: Platform.select({

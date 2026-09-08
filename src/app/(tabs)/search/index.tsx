@@ -5,6 +5,7 @@ import { fetchCategories } from "@/api/articles";
 import AppHeader from "@/components/app-header";
 import ArticleList from "@/components/article-list";
 import Squircle from "@/components/squircle";
+import { ThemedText } from "@/components/themed-text";
 import { useQuery } from "@tanstack/react-query";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -185,9 +186,13 @@ export default function SearchScreen() {
                   style={[styles.card, { width: cardWidth, height: cardHeight }]}
                 >
                   <Text style={styles.cardIcon}>{getCategoryIcon(cat)}</Text>
-                  <Text style={[styles.cardLabel, { color: theme.text }]}>
+                  {/* unscaled: the card's height is derived from its width
+                      via CARD_ASPECT_RATIO, so it cannot grow with the
+                      reader's font-size preference. Same reasoning as the
+                      header pills - see ThemedText's own prop comment. */}
+                  <ThemedText unscaled style={styles.cardLabel}>
                     {label}
-                  </Text>
+                  </ThemedText>
                 </Squircle>
               );
             })}
