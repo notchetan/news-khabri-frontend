@@ -61,6 +61,9 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
   return (
     <View style={[boundaryStyles.container, { backgroundColor: palette.background }]}>
+      {/* Plain Text throughout, not ThemedText: this boundary renders
+          outside every provider, so there is no font-size preference to
+          read here. See this file's own ErrorBoundary comment. */}
       <Text style={[boundaryStyles.title, { color: palette.text }]}>
         The app hit an unexpected error.
       </Text>

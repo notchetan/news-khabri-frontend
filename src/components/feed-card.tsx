@@ -124,6 +124,8 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: Radius.full,
   },
+  // Plain Text: a debug-only overlay in a fixed pill, deliberately outside
+  // the font-size preference.
   debugPillText: { color: "#fff", fontSize: 11, fontWeight: "700" },
   // Mirrors debugPill's absolute overlay, top-right instead of top-left.
   bookmarkButton: {

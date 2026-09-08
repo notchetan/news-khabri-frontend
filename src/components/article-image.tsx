@@ -102,5 +102,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   placeholderFallbackIcon: { fontSize: 32 },
+  // Plain Text: this sits inside a fixed-height image placeholder, so it
+  // deliberately does not grow with the font-size preference.
   placeholderText: { fontSize: 13 },
 });

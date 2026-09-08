@@ -447,6 +447,13 @@ const styles = StyleSheet.create({
     // rather than hardcoding a number that happens to be big enough.
     borderRadius: Radius.full,
   },
+  // Plain Text, not ThemedText - so these deliberately do not take the
+  // reader's font-size preference. `row` above is a fixed height and the
+  // pinned pill's width is measured off these metrics, so growing them
+  // would clip the row and desync the probes. ThemedText's `unscaled` prop
+  // is the usual way to say this, but two of the five call sites here are
+  // Animated.Text (the cross-fading pinned labels), which ThemedText cannot
+  // be - so all five stay plain rather than splitting across two mechanisms.
   pillText: { fontSize: 14, fontWeight: "500" },
   // Whatever actually receives the tap carries the pill's metrics, so the
   // touch target and the visible capsule are the same box. Shared by the

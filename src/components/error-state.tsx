@@ -1,5 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
+import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
@@ -21,7 +22,7 @@ export default function ErrorState({ message, onRetry, testID }: Props) {
 
   return (
     <View testID={testID} style={styles.container}>
-      <Text style={[styles.message, { color: theme.text }]}>{message}</Text>
+      <ThemedText style={styles.message}>{message}</ThemedText>
       {onRetry && (
         <TouchableOpacity
           onPress={onRetry}
@@ -29,7 +30,7 @@ export default function ErrorState({ message, onRetry, testID }: Props) {
           accessibilityRole="button"
           accessibilityLabel={t("retry")}
         >
-          <Text style={[styles.buttonText, { color: theme.text }]}>{t("retry")}</Text>
+          <ThemedText style={styles.buttonText}>{t("retry")}</ThemedText>
         </TouchableOpacity>
       )}
     </View>
@@ -49,6 +50,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
     borderRadius: Radius.full,
+    // 14pt of text inside Spacing.two came to roughly 34pt, under the
+    // platform minimum - and this is the one control on a failed screen.
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: { fontSize: 14, fontWeight: "600" },
 });
