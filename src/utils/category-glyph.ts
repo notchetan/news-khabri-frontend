@@ -13,8 +13,9 @@ import { getCategoryTopic, type CategoryTopic } from "./category-topic";
 const TOPIC_GLYPH: Record<CategoryTopic, SFSymbol> = {
   // No cricket-specific SF Symbol exists in the catalog - sportscourt.fill
   // (a flat court/pitch) reasonably fits a cricket pitch too, so cricket
-  // and general sports share it; the emoji (category-icon.ts) carries the
-  // more visible distinction between them.
+  // and general sports share it; general sports takes trophy.fill instead,
+  // which is what actually distinguishes the two. See
+  // docs/category-icons.md.
   cricket: "sportscourt.fill",
   sports: "trophy.fill",
   business: "chart.line.uptrend.xyaxis",

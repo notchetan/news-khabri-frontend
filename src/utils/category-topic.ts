@@ -1,11 +1,10 @@
 // Maps a category name (raw string from whatever publisher/language it came
 // from - there's no fixed taxonomy, see category-aliases.js on the backend)
 // to one of a small set of general topics via keyword matching. Shared by
-// category-icon.ts (emoji, used for the search tab's category grid) and
-// category-glyph.ts (SF Symbol, used for article-image.tsx's no-photo
-// placeholder) so the "which bucket does this category belong to" judgment
-// call lives in exactly one place rather than two keyword lists silently
-// drifting apart as sources/languages are added.
+// category-glyph.ts (SF Symbols, iOS) and category-ionicon.ts (Ionicons,
+// Android), so the "which bucket does this category belong to" judgment
+// call lives in exactly one place rather than separate keyword lists
+// silently drifting apart as sources/languages are added.
 export type CategoryTopic =
   | "sports"
   | "cricket"
