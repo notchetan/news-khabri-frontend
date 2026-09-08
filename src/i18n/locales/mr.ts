@@ -77,6 +77,7 @@ const mr: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "पहिल्या श्रेणीकडे परत जा",
   tabSearch: "एक्सप्लोर करा",
   searchPlaceholder: "लेख शोधा",
+  clearSearch: "शोध साफ करा",
   noArticlesFound: "कोणतेही लेख आढळले नाहीत.",
   noResultsForTemplate: "{query} साठी कोणतेही परिणाम आढळले नाहीत",
   topStories: "प्रमुख बातम्या",

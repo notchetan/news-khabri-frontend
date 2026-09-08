@@ -1,3 +1,6 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { SymbolView } from "expo-symbols";
+
 import { fetchCategories } from "@/api/articles";
 import AppHeader from "@/components/app-header";
 import ArticleList from "@/components/article-list";
@@ -8,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -109,6 +113,7 @@ export default function SearchScreen() {
       >
         <View style={styles.searchBarRow}>
           <TextInput
+            testID="search-input"
             ref={searchInputRef}
             value={query}
             onChangeText={setQuery}
@@ -116,12 +121,39 @@ export default function SearchScreen() {
             placeholderTextColor={theme.textSecondary}
             style={[
               styles.searchInput,
+              // Room for the Android clear button overlaid below; iOS's own
+              // clearButtonMode reserves its space itself.
+              Platform.OS === "android" && query.length > 0 && styles.searchInputWithClear,
               { backgroundColor: theme.backgroundElement, color: theme.text },
             ]}
             accessibilityLabel={t("searchPlaceholder")}
             autoCorrect={false}
             returnKeyType="search"
+            // The system control on iOS - correct behaviour and OS-localized
+            // for free. Android's TextInput has no equivalent, so it gets the
+            // custom button below instead of both platforms getting a custom
+            // one for the sake of matching.
+            clearButtonMode="while-editing"
           />
+          {Platform.OS === "android" && query.length > 0 && (
+            <Pressable
+              testID="search-clear-button"
+              onPress={() => setQuery("")}
+              hitSlop={12}
+              style={styles.clearButton}
+              accessibilityRole="button"
+              accessibilityLabel={t("clearSearch")}
+            >
+              <SymbolView
+                name="xmark.circle.fill"
+                size={18}
+                tintColor={theme.textSecondary}
+                fallback={
+                  <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
+                }
+              />
+            </Pressable>
+          )}
         </View>
 
         {debouncedQuery ? (
@@ -172,19 +204,35 @@ const styles = StyleSheet.create({
   // ArticleList's search results) already supplies its own top padding
   // (Spacing.three), and the two were stacking into a visibly bigger gap
   // here than anywhere else in the app.
-  searchBarRow: { paddingHorizontal: Spacing.three },
+  searchBarRow: { paddingHorizontal: Spacing.three, justifyContent: "center" },
   // A genuine capsule (Radius.full), not Squircle - real iOS search fields
   // are fully-round pills, not a modest rounded-rect.
   searchInput: {
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
     fontSize: 16,
+    // 16pt of text inside Spacing.two padding came to roughly 36pt, under
+    // the 44pt minimum for an input.
+    minHeight: 44,
     borderRadius: Radius.full,
+    // Vertically centres the text within that minHeight on Android, which
+    // otherwise top-aligns it once the box is taller than the line.
+    ...Platform.select({ android: { textAlignVertical: "center" as const }, default: {} }),
     // Web-only: without this, the browser's own default focus ring (a
     // square-cornered black outline) draws over the capsule shape above -
     // a no-op on native, which has no such default to suppress.
     outlineWidth: 0,
   },
+  // Overlaid inside the capsule's right edge rather than beside it, so the
+  // field keeps its full width and the row's height never changes as the
+  // button comes and goes.
+  clearButton: {
+    position: "absolute",
+    right: Spacing.three + Spacing.two,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchInputWithClear: { paddingRight: Spacing.six },
   gridScrollView: { flex: 1 },
   gridContent: {
     padding: GRID_PADDING,

@@ -81,6 +81,7 @@ const or: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "ପ୍ରଥମ ବର୍ଗକୁ ଫେରନ୍ତୁ",
   tabSearch: "ଏକ୍ସପ୍ଲୋର୍ କରନ୍ତୁ",
   searchPlaceholder: "ପ୍ରବନ୍ଧ ଖୋଜନ୍ତୁ",
+  clearSearch: "ଖୋଜ ସଫା କରନ୍ତୁ",
   noArticlesFound: "କୌଣସି ପ୍ରବନ୍ଧ ମିଳିଲା ନାହିଁ।",
   noResultsForTemplate: "{query} ପାଇଁ କୌଣସି ଫଳାଫଳ ମିଳିଲା ନାହିଁ",
   topStories: "ପ୍ରମୁଖ ଖବର",

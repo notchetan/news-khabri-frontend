@@ -85,6 +85,7 @@ const en = {
   scrollToFirstCategory: "Scroll back to first category",
   tabSearch: "Explore",
   searchPlaceholder: "Search articles",
+  clearSearch: "Clear search",
   noArticlesFound: "No articles found.",
   // Search-results-specific empty state (see article-list.tsx) - echoes
   // the actual query back so it's clear what came up empty, unlike the

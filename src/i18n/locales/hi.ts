@@ -79,6 +79,7 @@ const hi: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "पहली श्रेणी पर वापस जाएं",
   tabSearch: "एक्सप्लोर करें",
   searchPlaceholder: "लेख खोजें",
+  clearSearch: "खोज साफ़ करें",
   noArticlesFound: "कोई लेख नहीं मिला।",
   noResultsForTemplate: "{query} के लिए कोई परिणाम नहीं मिला",
   topStories: "प्रमुख ख़बरें",

@@ -78,6 +78,7 @@ const gu: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "પ્રથમ શ્રેણી પર પાછા જાઓ",
   tabSearch: "એક્સપ્લોર કરો",
   searchPlaceholder: "લેખ શોધો",
+  clearSearch: "શોધ સાફ કરો",
   noArticlesFound: "કોઈ લેખ મળ્યો નહીં.",
   noResultsForTemplate: "{query} માટે કોઈ પરિણામ મળ્યું નથી",
   topStories: "મુખ્ય સમાચાર",
