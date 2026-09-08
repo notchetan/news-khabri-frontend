@@ -1,11 +1,12 @@
 import { ARTICLES_PAGE_SIZE, cursorFor, fetchArticles } from "@/api/articles";
+import EmptyState from "@/components/empty-state";
 import ErrorState from "@/components/error-state";
 import FeedCard from "@/components/feed-card";
 import ArticleListSkeleton from "@/components/article-list-skeleton";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 
 import { Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/contexts/bookmarks-context";
@@ -25,6 +26,9 @@ type Props = {
 export default function ArticleList({ category, search, basePath }: Props) {
   const { language } = useLanguagePreference();
   const { selectedSources } = useSourcesPreference();
+  // An empty selection is the canonical "every source" state (see
+  // sources-preference.tsx), so only a non-empty one can be hiding things.
+  const hasSourceFilter = selectedSources.length > 0;
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -95,15 +99,25 @@ export default function ArticleList({ category, search, basePath }: Props) {
       }}
       onEndReachedThreshold={0.5}
       ListEmptyComponent={
-        <Text
-          style={[
-            styles.message,
-            search ? styles.messageCentered : null,
-            { color: theme.textSecondary },
-          ]}
-        >
-          {search ? t("noResultsForTemplate", { query: search }) : t("noArticlesFound")}
-        </Text>
+        <EmptyState
+          testID="article-list-empty"
+          symbolName={search ? "magnifyingglass" : "newspaper"}
+          ioniconName={search ? "search-outline" : "newspaper-outline"}
+          title={
+            search ? t("noResultsForTemplate", { query: search }) : t("noArticlesFound")
+          }
+          // A search says everything in its title and the query box is
+          // right above it. An empty *feed* is the one that needs help:
+          // the usual cause is the reader's own source filter, so offer
+          // the way back to it - but only when one is actually active,
+          // rather than pointing at a filter that isn't the problem.
+          description={!search && hasSourceFilter ? t("sourcesDescription") : undefined}
+          action={
+            !search && hasSourceFilter
+              ? { label: t("sources"), onPress: () => router.push("/preferences/sources") }
+              : undefined
+          }
+        />
       }
       ListFooterComponent={
         isFetchingNextPage ? (
@@ -143,8 +157,6 @@ export default function ArticleList({ category, search, basePath }: Props) {
 }
 
 const styles = StyleSheet.create({
-  message: { padding: 16 },
-  messageCentered: { textAlign: "center" },
   footer: { paddingVertical: Spacing.four },
   listContent: { padding: Spacing.three, gap: Spacing.three },
 });

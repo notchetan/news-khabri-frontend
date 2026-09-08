@@ -5,7 +5,10 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-
 import { ARTICLES_PAGE_SIZE, fetchArticles, type Article } from "@/api/articles";
 import { DebugPreferenceProvider } from "@/contexts/debug-preference";
 import { LanguagePreferenceProvider } from "@/contexts/language-preference";
-import { SourcesPreferenceProvider } from "@/contexts/sources-preference";
+import {
+  SOURCES_STORAGE_KEY,
+  SourcesPreferenceProvider,
+} from "@/contexts/sources-preference";
 import { ThemePreferenceProvider } from "@/contexts/theme-preference";
 import ArticleList from "../article-list";
 import { __resetGuardedNavigateForTests } from "@/utils/navigation-guard";
@@ -344,5 +347,51 @@ describe("ArticleList", () => {
       expect(screen.getByText("An article without a score")).toBeTruthy();
     });
     expect(screen.queryByTestId("ranking-debug-pill")).toBeNull();
+  });
+
+  // An empty feed is the most reachable empty state in the app - both a
+  // category and a source filter can produce one - and it used to be a
+  // bare left-aligned line of secondary text with nothing to do about it.
+  describe("the empty feed", () => {
+    it("offers the way back to Sources when a source filter is active", async () => {
+      await AsyncStorage.setItem(SOURCES_STORAGE_KEY, JSON.stringify({ en: ["NDTV"] }));
+
+      await act(async () => {
+        renderList();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText("No articles found.")).toBeTruthy();
+      });
+      fireEvent.press(screen.getByTestId("article-list-empty-action"));
+      expect(mockPush).toHaveBeenCalledWith("/preferences/sources");
+    });
+
+    // Pointing at a filter that is not the problem is worse than saying
+    // nothing - an empty selection means every source is already on.
+    it("offers no source action when nothing is filtered", async () => {
+      await act(async () => {
+        renderList();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText("No articles found.")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("article-list-empty-action")).toBeNull();
+    });
+
+    it("shows the query, and no source action, for a search with no hits", async () => {
+      await AsyncStorage.setItem(SOURCES_STORAGE_KEY, JSON.stringify({ en: ["NDTV"] }));
+
+      await act(async () => {
+        renderList({ search: "kerala" });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText("No results found for kerala")).toBeTruthy();
+      });
+      // The query box is right above it; a Sources detour is the wrong help.
+      expect(screen.queryByTestId("article-list-empty-action")).toBeNull();
+    });
   });
 });

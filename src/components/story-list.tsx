@@ -1,11 +1,12 @@
 import { fetchStoryFeed, STORIES_PAGE_SIZE, STORY_FEED_MAX_LIMIT } from "@/api/stories";
 import ArticleListSkeleton from "@/components/article-list-skeleton";
+import EmptyState from "@/components/empty-state";
 import ErrorState from "@/components/error-state";
 import FeedCard from "@/components/feed-card";
 import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 
 import { Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
@@ -32,6 +33,9 @@ type Props = {
 export default function StoryList({ category }: Props) {
   const { language } = useLanguagePreference();
   const { selectedSources } = useSourcesPreference();
+  // An empty selection is the canonical "every source" state (see
+  // sources-preference.tsx), so only a non-empty one can be hiding things.
+  const hasSourceFilter = selectedSources.length > 0;
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -110,9 +114,20 @@ export default function StoryList({ category }: Props) {
       }}
       onEndReachedThreshold={0.5}
       ListEmptyComponent={
-        <Text style={[styles.message, { color: theme.textSecondary }]}>
-          {t("noStoriesFound")}
-        </Text>
+        <EmptyState
+          testID="story-list-empty"
+          symbolName="newspaper"
+          ioniconName="newspaper-outline"
+          title={t("noStoriesFound")}
+          // See ArticleList's own note: only offered when a source filter
+          // is actually what could be emptying the feed.
+          description={hasSourceFilter ? t("sourcesDescription") : undefined}
+          action={
+            hasSourceFilter
+              ? { label: t("sources"), onPress: () => router.push("/preferences/sources") }
+              : undefined
+          }
+        />
       }
       ListFooterComponent={
         isFetchingNextPage ? (
@@ -180,7 +195,6 @@ export default function StoryList({ category }: Props) {
 }
 
 const styles = StyleSheet.create({
-  message: { padding: 16 },
   footer: { paddingVertical: Spacing.four },
   listContent: { padding: Spacing.three, gap: Spacing.three },
 });
