@@ -10,6 +10,11 @@ import { useLanguagePreference } from "@/contexts/language-preference";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 
+// Two 144pt columns. Kept off the Spacing scale deliberately: this is a
+// width derived from what two columns of endonym need, not a gap that has
+// to rhyme with anything else on the screen.
+const DROPDOWN_WIDTH = 288;
+
 // Inline dropdown on the welcome screen (not a pushed picker screen like
 // preferences/language.tsx) - picking a language here immediately re-renders
 // the rest of onboarding in it, since every screen shares the same
@@ -53,12 +58,16 @@ export function OnboardingLanguagePicker({ style }: { style?: ViewStyle }) {
         >
           {/* Every language at once, no scroll - a scrollable list here
               risks a reader never realizing there's more below the fold
-              and missing their own language entirely. */}
+              and missing their own language entirely. Two columns is what
+              makes that affordable at a 44pt row: ten single-column rows
+              would be 440pt of popup, taller than the space under the pill
+              on a short screen. */}
           {LANGUAGE_OPTIONS.map((option) => {
             const selected = language === option.value;
             return (
               <Pressable
                 key={option.value}
+                testID={`onboarding-language-option-${option.value}`}
                 onPress={() => {
                   setLanguage(option.value);
                   setIsOpen(false);
@@ -113,17 +122,28 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     zIndex: 10,
     elevation: 10,
+    // A fixed width so the two 50%-wide cells below are a predictable size
+    // rather than sized to whichever endonym happens to be widest. Centered
+    // under the pill by `container`'s own alignItems, and comfortably inside
+    // even a 320pt screen.
+    width: DROPDOWN_WIDTH,
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   row: {
+    // Two per line - see the dropdown comment in the JSX above. The ten
+    // languages divide evenly into five lines.
+    width: "50%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: Spacing.three,
-    // Tighter than a typical row (Spacing.two) - all 10 languages render at
-    // once with no scroll (see the comment above), so keeping each row
-    // compact matters for fitting comfortably above the bottom edge on
-    // shorter screens.
-    paddingVertical: Spacing.one,
-    minWidth: 160,
+    gap: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
+    // The platform touch-target minimum. paddingVertical alone leaves a
+    // 14pt line at roughly 36pt, and these rows sit flush against each
+    // other with no gap, so an undersized one doesn't just miss - it
+    // selects the neighbouring language.
+    minHeight: 44,
   },
 });
