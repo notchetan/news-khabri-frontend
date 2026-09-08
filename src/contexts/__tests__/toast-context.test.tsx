@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
-import { Button } from "react-native";
+import { AccessibilityInfo, Button } from "react-native";
 
 import { ThemePreferenceProvider } from "@/contexts/theme-preference";
 import { ToastProvider, useToast } from "@/contexts/toast-context";
@@ -73,5 +73,34 @@ describe("ToastProvider", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("toast")).toBeNull();
     });
+  });
+
+  // A toast appears and self-dismisses in 4s without moving focus, so
+  // nothing else would surface it to a screen reader.
+  it("marks the toast as a polite live region", async () => {
+    await renderHarness();
+
+    fireEvent.press(screen.getByText("show"));
+    await waitFor(() => expect(screen.getByTestId("toast")).toBeTruthy());
+
+    expect(screen.getByTestId("toast")).toHaveProp(
+      "accessibilityLiveRegion",
+      "polite"
+    );
+  });
+
+  // jest-expo runs with Platform.OS "ios", where there is no live-region
+  // prop - the explicit announce is the only path.
+  it("announces the message and its action label on iOS", async () => {
+    const announce = jest
+      .spyOn(AccessibilityInfo, "announceForAccessibility")
+      .mockImplementation(() => {});
+
+    await renderHarness();
+    fireEvent.press(screen.getByText("show"));
+
+    await waitFor(() => expect(announce).toHaveBeenCalledWith("Saved. View"));
+
+    announce.mockRestore();
   });
 });

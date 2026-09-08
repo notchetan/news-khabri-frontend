@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Pressable, StyleSheet, View } from "react-native";
+import {
+  AccessibilityInfo,
+  Animated,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
@@ -47,12 +54,30 @@ export default function Toast({
     return () => animation.stop();
   }, [config, anim]);
 
+  // A toast that is never announced is a toast a screen reader user never
+  // gets: it appears and self-dismisses in 4s without moving focus, so
+  // nothing else would surface it. accessibilityLiveRegion below covers
+  // Android; iOS has no equivalent prop, so announce explicitly there.
+  //
+  // The action's label rides along rather than being left to be discovered
+  // - a transient button nobody is told about may as well not exist.
+  useEffect(() => {
+    if (!config || Platform.OS !== "ios") return;
+    AccessibilityInfo.announceForAccessibility(
+      config.action ? `${config.message}. ${config.action.label}` : config.message
+    );
+  }, [config]);
+
   if (!mounted || !shown) return null;
 
   return (
     <Animated.View
       testID="toast"
       pointerEvents={config ? "box-none" : "none"}
+      // polite, not assertive: a saved-confirmation should wait its turn
+      // rather than cut off whatever is being read. Announces without
+      // taking focus, which a transient view must not do.
+      accessibilityLiveRegion="polite"
       style={[
         styles.wrap,
         // Clear the tab bar where there is one; on the tab-less screens
