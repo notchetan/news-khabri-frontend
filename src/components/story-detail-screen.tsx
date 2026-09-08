@@ -11,6 +11,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
+import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { formatRelativeTime } from "@/utils/format-date";
@@ -18,7 +19,7 @@ import { articleHref } from "@/utils/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Animated,
   Platform,
@@ -248,7 +249,7 @@ function StoryDetailSkeleton({
   headerHeight: number;
   topPadding: number;
 }) {
-  const opacity = useRef(new Animated.Value(0.4)).current;
+  const opacity = useSkeletonPulse();
   const theme = useTheme();
   const tabBarInset = useTabBarInset();
   const { t } = useTranslation();
@@ -257,17 +258,6 @@ function StoryDetailSkeleton({
     web: Spacing.six,
   });
   const contentBottomPadding = Spacing.three + tabBarInset;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.4, duration: 700, useNativeDriver: true }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [opacity]);
 
   const block = { backgroundColor: theme.backgroundSelected, opacity };
 
