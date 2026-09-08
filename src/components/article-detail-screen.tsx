@@ -8,7 +8,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -32,7 +31,7 @@ import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
 import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { formatPublishedDate } from "@/utils/format-date";
-import { articleHref } from "@/utils/navigation";
+import { articleHref, goBackOr, shareLink } from "@/utils/navigation";
 import { stripHtml } from "@/utils/strip-html";
 import { useTranslation } from "@/i18n/translations";
 import { useQuery } from "@tanstack/react-query";
@@ -102,24 +101,9 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
     if (data?.link) WebBrowser.openBrowserAsync(data.link);
   };
 
-  const shareArticle = async () => {
+  const shareArticle = () => {
     if (!data?.link) return;
-    try {
-      // Android's share sheet only reads `message` - `url` is silently
-      // dropped there, so the link has to be folded into the message text
-      // to actually reach the target app. iOS handles `url` as its own
-      // field (and web's Share shim - see react-native-web - forwards both
-      // separately to navigator.share), so it can stay split there.
-      await Share.share(
-        Platform.OS === "ios"
-          ? { title: data.title, url: data.link }
-          : { message: `${data.title}\n${data.link}` },
-        { dialogTitle: data.title }
-      );
-    } catch {
-      // Share sheet dismissed, or unsupported (e.g. desktop web without a
-      // navigator.share implementation) - nothing to recover from, no-op.
-    }
+    shareLink(data.title, data.link);
   };
 
   const saved = data ? isBookmarked(data.id) : false;
@@ -137,17 +121,7 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
     });
   };
 
-  // router.back() warns/no-ops when this screen has no prior route to pop -
-  // e.g. opened via a direct link or a web page reload, which drops the
-  // stack down to just this screen. Fall back to this stack's own root in
-  // that case.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(homePath);
-    }
-  };
+  const goBack = () => goBackOr(router, homePath);
 
   const publishedLabel = data ? formatPublishedDate(data.published_at) : null;
   // The RSS snippet, flattened to plain text - the app summarises and
@@ -233,11 +207,11 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
 
           <View testID="article-meta-row" style={styles.metaRow}>
             <View testID="article-meta-text-block" style={styles.metaTextBlock}>
-              <ThemedText themeColor="textSecondary" style={styles.meta}>
+              <ThemedText themeColor="textSecondary">
                 {data.source}
               </ThemedText>
               {(publishedLabel || data.read_time_minutes) && (
-                <ThemedText themeColor="textSecondary" style={styles.meta}>
+                <ThemedText themeColor="textSecondary">
                   {[
                     publishedLabel,
                     data.read_time_minutes
@@ -464,7 +438,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.three,
   },
   metaTextBlock: { gap: 2 },
-  meta: {},
   summary: { marginTop: Spacing.two },
   // The primary action on this screen now - a filled button, since the
   // full article lives on the publisher's site, not here.

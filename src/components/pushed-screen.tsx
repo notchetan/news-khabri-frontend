@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
+import { goBackOr } from "@/utils/navigation";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 
@@ -42,13 +43,7 @@ export default function PushedScreen({ title, children, renderHeader }: Props) {
   });
   const bottomPadding = useTabBarInset();
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/preferences");
-    }
-  };
+  const goBack = () => goBackOr(router, "/preferences");
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: topPadding, paddingBottom: bottomPadding }}>

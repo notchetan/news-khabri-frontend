@@ -6,6 +6,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
+import { goBackOr } from "@/utils/navigation";
 
 // Rendered by expo-router for any route that doesn't match a file - a bad
 // deep link, a stale share URL, a web reload of a path that no longer
@@ -16,10 +17,7 @@ export default function NotFoundScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const goHome = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
-  };
+  const goHome = () => goBackOr(router, "/");
 
   return (
     <View

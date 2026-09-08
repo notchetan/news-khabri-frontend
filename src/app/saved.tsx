@@ -16,7 +16,7 @@ import { Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/contexts/bookmarks-context";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
-import { articleHref } from "@/utils/navigation";
+import { articleHref, goBackOr } from "@/utils/navigation";
 
 // Top-level route (not a tab), reached from the bookmark icon in
 // AppHeader and the button on the Profile screen. Wears the same floating
@@ -54,13 +54,7 @@ export default function SavedScreen() {
     { useNativeDriver: false }
   );
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
+  const goBack = () => goBackOr(router, "/");
 
   const confirmClearAll = () => {
     Alert.alert(t("clearAllConfirmTitle"), t("clearAllConfirmMessage"), [

@@ -22,13 +22,3 @@ export async function registerPushSubscription(
   });
 }
 
-// Forget this device's subscription entirely - no auth, the caller holds
-// the token. Used on sign-out alongside a fresh anonymous register.
-export async function deregisterPushSubscription(pushToken: string): Promise<void> {
-  await apiFetch("/push-subscriptions", {
-    method: "DELETE",
-    body: { pushToken },
-    parseJson: false,
-    errorMessage: "Failed to deregister push subscription",
-  });
-}

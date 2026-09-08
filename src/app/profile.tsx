@@ -12,6 +12,7 @@ import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
+import { goBackOr } from "@/utils/navigation";
 
 // Reachable from the profile button in AppHeader on every tab that shows
 // one. Its own back button below follows the same pattern as
@@ -37,13 +38,7 @@ export default function ProfileScreen() {
     web: Spacing.six,
   });
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
+  const goBack = () => goBackOr(router, "/");
 
   const confirmDeleteAccount = () => {
     Alert.alert(

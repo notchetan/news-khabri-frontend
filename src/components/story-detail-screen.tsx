@@ -15,7 +15,7 @@ import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { formatRelativeTime } from "@/utils/format-date";
-import { articleHref } from "@/utils/navigation";
+import { articleHref, goBackOr, shareLink } from "@/utils/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -24,7 +24,6 @@ import {
   Animated,
   Platform,
   ScrollView,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -76,13 +75,7 @@ export default function StoryDetailScreen() {
     { useNativeDriver: false }
   );
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(HOME_PATH);
-    }
-  };
+  const goBack = () => goBackOr(router, HOME_PATH);
 
   const updatedLabel = data ? formatRelativeTime(data.latestPublishedAt, t) : null;
 
@@ -90,21 +83,10 @@ export default function StoryDetailScreen() {
   // member article) - the representative article's own link is the closest
   // real, dereferenceable thing to share, same choice the hero image above
   // already makes for its source.
-  const shareStory = async () => {
+  const shareStory = () => {
     const link = data?.representativeArticle?.link;
     if (!data || !link) return;
-    try {
-      // See ArticleDetailScreen's shareArticle for why Android needs the
-      // link folded into `message` rather than passed as `url`.
-      await Share.share(
-        Platform.OS === "ios"
-          ? { title: data.title, url: link }
-          : { message: `${data.title}\n${link}` },
-        { dialogTitle: data.title }
-      );
-    } catch {
-      // Share sheet dismissed, or unsupported - nothing to recover from.
-    }
+    shareLink(data.title, link);
   };
 
   // See docs/story-detail-screen.md.
@@ -165,13 +147,13 @@ export default function StoryDetailScreen() {
 
           <View style={styles.metaRow}>
             <View style={styles.metaTextBlock}>
-              <ThemedText themeColor="textSecondary" style={styles.meta}>
+              <ThemedText themeColor="textSecondary">
                 {t("storySourcesTemplate", { count: String(data.sourceCount) })}
                 {" · "}
                 {t("storyArticlesTemplate", { count: String(data.articleCount) })}
               </ThemedText>
               {updatedLabel && (
-                <ThemedText themeColor="textSecondary" style={styles.meta}>
+                <ThemedText themeColor="textSecondary">
                   {t("storyUpdatedTemplate", { time: updatedLabel })}
                 </ThemedText>
               )}
@@ -328,7 +310,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   shareButtonText: { fontSize: 14, fontWeight: "600" },
-  meta: {},
   summary: { marginTop: Spacing.three },
   membersSection: { marginTop: Spacing.five },
   membersHeading: { letterSpacing: 0.5, marginBottom: Spacing.two },
