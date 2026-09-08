@@ -16,6 +16,7 @@ import {
 } from "react-native";
 
 import { Radius, Spacing } from "@/constants/theme";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 
@@ -60,6 +61,7 @@ export default function CategoryPills({
 }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const reducedMotion = useReducedMotion();
   const [isScrolled, setIsScrolled] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -90,15 +92,20 @@ export default function CategoryPills({
   // real onScroll events firing during this programmatic scroll - see
   // docs/animated-scroll-collapse.md.
   const scrollToStart = () => {
-    scrollRef.current?.scrollTo({ x: 0, animated: true });
+    // The one *programmatic* animation in this component - the pinned
+    // pill's own collapse tracks the finger, which Reduce Motion doesn't
+    // ask us to suppress. This travel is ours, so it goes.
+    scrollRef.current?.scrollTo({ x: 0, animated: !reducedMotion });
     scrollBackAnimation.current = Animated.timing(scrollX, {
       toValue: 0,
-      duration: 300,
+      duration: reducedMotion ? 0 : 300,
       useNativeDriver: false,
     });
     scrollBackAnimation.current.start();
     if (isScrolled) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      if (!reducedMotion) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
       setIsScrolled(false);
     }
   };
@@ -108,7 +115,9 @@ export default function CategoryPills({
   const handleScrollThreshold = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const nextIsScrolled = event.nativeEvent.contentOffset.x > SCROLL_BACK_THRESHOLD;
     if (nextIsScrolled !== isScrolled) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      if (!reducedMotion) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
       setIsScrolled(nextIsScrolled);
     }
   };

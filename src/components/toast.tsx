@@ -3,6 +3,7 @@ import { Animated, Pressable, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -24,6 +25,7 @@ export default function Toast({
 }) {
   const theme = useTheme();
   const tabBarInset = useTabBarInset();
+  const reducedMotion = useReducedMotion();
   const anim = useRef(new Animated.Value(0)).current;
   const [mounted, setMounted] = useState(false);
   const shownRef = useRef<ToastConfig | null>(null);
@@ -59,9 +61,19 @@ export default function Toast({
         { bottom: tabBarInset + Spacing.two },
         {
           opacity: anim,
-          transform: [
-            { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) },
-          ],
+          // Under Reduce Motion the toast cross-fades in place instead of
+          // rising - a fade is the recommended stand-in for motion, so the
+          // opacity half stays either way and only the travel goes.
+          transform: reducedMotion
+            ? []
+            : [
+                {
+                  translateY: anim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [24, 0],
+                  }),
+                },
+              ],
         },
       ]}
     >

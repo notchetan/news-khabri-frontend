@@ -85,10 +85,16 @@ describe("ArticleList", () => {
   });
 
   it("shows a loading skeleton, then the article list once articles resolve", async () => {
-    mockFetchArticles.mockResolvedValue([
-      makeArticle({ id: 1, title: "First article", source: "NDTV" }),
-      makeArticle({ id: 2, title: "Second article", source: "Aaj Tak" }),
-    ]);
+    // Deferred rather than mockResolvedValue: the skeleton is only
+    // observable while the query is genuinely in flight, and an already
+    // -resolved promise can settle inside the same act() flush as the
+    // render, leaving nothing to assert on.
+    let resolveArticles: (articles: Article[]) => void = () => {};
+    mockFetchArticles.mockReturnValue(
+      new Promise<Article[]>((resolve) => {
+        resolveArticles = resolve;
+      })
+    );
 
     await act(async () => {
       renderList();
@@ -96,11 +102,19 @@ describe("ArticleList", () => {
 
     expect(screen.getByRole("progressbar")).toBeTruthy();
 
+    await act(async () => {
+      resolveArticles([
+        makeArticle({ id: 1, title: "First article", source: "NDTV" }),
+        makeArticle({ id: 2, title: "Second article", source: "Aaj Tak" }),
+      ]);
+    });
+
     await waitFor(() => {
       expect(screen.getByText("First article")).toBeTruthy();
     });
     expect(screen.getByText("Second article")).toBeTruthy();
     expect(screen.getByText("NDTV")).toBeTruthy();
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
   it("shows an error message with a working retry when the articles request fails", async () => {
