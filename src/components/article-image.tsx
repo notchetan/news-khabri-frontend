@@ -1,9 +1,8 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, type DimensionValue } from "react-native";
 
+import Icon from "@/components/icon";
 import Squircle from "@/components/squircle";
 import { Radius } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -56,18 +55,12 @@ export default function ArticleImage({
           accessible
           accessibilityLabel={uri ? t("imageFailedToLoad") : t("noImage")}
         >
-          <SymbolView
+          <Icon
             testID="article-image-placeholder-glyph"
-            name={uri ? "exclamationmark.triangle.fill" : getCategoryGlyph(category)}
+            sf={uri ? "exclamationmark.triangle.fill" : getCategoryGlyph(category)}
+            ion={uri ? "warning" : getCategoryIonicon(category)}
             size={36}
-            tintColor={theme.textSecondary}
-            fallback={
-              <Ionicons
-                name={uri ? "warning" : getCategoryIonicon(category)}
-                size={36}
-                color={theme.textSecondary}
-              />
-            }
+            color={theme.textSecondary}
           />
           {uri && (
             <Text style={[styles.placeholderText, { color: theme.textSecondary }]}>

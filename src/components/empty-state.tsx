@@ -1,7 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { SymbolView, type SymbolViewProps } from "expo-symbols";
+import { type SymbolViewProps } from "expo-symbols";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
+import Icon from "@/components/icon";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -41,14 +42,12 @@ export default function EmptyState({
 
   return (
     <View testID={testID} style={styles.container}>
-      <SymbolView
-        name={symbolName}
+      <Icon
+        sf={symbolName}
+        ion={ioniconName}
         size={ICON_SIZE}
         weight="regular"
-        tintColor={theme.textSecondary}
-        fallback={
-          <Ionicons name={ioniconName} size={ICON_SIZE} color={theme.textSecondary} />
-        }
+        color={theme.textSecondary}
       />
       <ThemedText type="subtitle" style={styles.title}>
         {title}

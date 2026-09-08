@@ -1,6 +1,4 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { useRef, useState } from "react";
 import { Alert, Animated, FlatList, Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

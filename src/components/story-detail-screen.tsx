@@ -1,8 +1,8 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { recordRead } from "@/api/reads";
 import { fetchStoryDetail } from "@/api/stories";
 import ArticleImage from "@/components/article-image";
 import ErrorState from "@/components/error-state";
+import Icon from "@/components/icon";
 import FloatingDetailHeader, {
   getContentTopPadding,
   useHeaderScrollY,
@@ -18,7 +18,6 @@ import { formatRelativeTime } from "@/utils/format-date";
 import { articleHref, goBackOr, shareLink } from "@/utils/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
 import {
   Animated,
@@ -165,12 +164,12 @@ export default function StoryDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={t("share")}
             >
-              <SymbolView
-                name="square.and.arrow.up"
+              <Icon
+                sf="square.and.arrow.up"
+                ion="share-outline"
                 size={16}
                 weight="semibold"
-                tintColor={theme.text}
-                fallback={<Ionicons name="share-outline" size={16} color={theme.text} />}
+                color={theme.text}
               />
               <ThemedText style={styles.shareButtonText}>{t("share")}</ThemedText>
             </TouchableOpacity>

@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { SFSymbol, SymbolView } from "expo-symbols";
+import { SFSymbol } from "expo-symbols";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import Icon from "@/components/icon";
 import { OnboardingDots } from "@/components/onboarding-dots";
 import { OnboardingNextButton } from "@/components/onboarding-next-button";
 import { ThemedText } from "@/components/themed-text";
@@ -85,12 +86,7 @@ export default function OnboardingFeaturesScreen() {
           {FEATURES.map((feature) => (
             <View key={feature.titleKey} style={styles.featureRow}>
               <ThemedView type="backgroundElement" style={styles.iconCircle}>
-                <SymbolView
-                  name={feature.sf}
-                  size={22}
-                  tintColor={theme.tint}
-                  fallback={<Ionicons name={feature.ionicon} size={22} color={theme.tint} />}
-                />
+                <Icon sf={feature.sf} ion={feature.ionicon} size={22} color={theme.tint} />
               </ThemedView>
               <View style={styles.featureText}>
                 <ThemedText type="default" style={styles.featureTitle}>
