@@ -279,12 +279,13 @@ function PinnedPill({
       testID="pinned-pill"
       style={[
         styles.pill,
+        styles.pillOuterReset,
         { backgroundColor: isActive ? theme.tint : theme.backgroundElement },
-        canCollapse && styles.pinnedPillFixed,
         animatedWidth != null && { width: animatedWidth, overflow: "hidden" },
       ]}
     >
       <TouchableOpacity
+        testID="pinned-pill-touchable"
         onPress={onPress}
         accessibilityRole="button"
         accessibilityState={{ selected: isActive }}
@@ -292,7 +293,7 @@ function PinnedPill({
         // cross-fade - a screen reader should still announce the complete
         // name even once the pill has visually shrunk.
         accessibilityLabel={fullLabel}
-        style={canCollapse && styles.pinnedPillInner}
+        style={styles.pillInner}
       >
         {canCollapse ? (
           <>
@@ -368,12 +369,14 @@ function Pill({
 
   return (
     <TouchableOpacity
+      testID={`category-pill-${category}`}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
       accessibilityLabel={label}
       style={[
         styles.pill,
+        styles.pillInner,
         { backgroundColor: isActive ? theme.tint : theme.backgroundElement },
       ]}
     >
@@ -392,6 +395,12 @@ function Pill({
 // Screen-edge padding vs. the gap between items within the row vs. the gap
 // around the divider/back-arrow slot specifically - see
 // docs/category-pills-layout.md for why these are three different constants.
+// The platform touch-target minimum. The visible capsule is deliberately
+// this tall rather than staying compact with a hitSlop: RN's hitSlop never
+// extends past the parent's bounds, and PinnedPill's tappable child sits
+// inside an Animated.View sized to the pill, so slop there would have been
+// silently clipped on Android.
+const PILL_MIN_HEIGHT = 44;
 const PILL_GAP = Spacing.three;
 const PILL_ITEM_GAP = 14;
 const DIVIDER_SLOT_GAP = 10;
@@ -424,7 +433,9 @@ const styles = StyleSheet.create({
     // before this ScrollView (from the divider or the back arrow,
     // whichever immediately precedes it); adding one here too would double it.
     paddingRight: PILL_GAP,
-    paddingVertical: 10,
+    // 6, not 10: PILL_MIN_HEIGHT + this padding on both sides has to come
+    // to `row`'s own height, or the taller pills get clipped by it.
+    paddingVertical: 6,
     gap: PILL_ITEM_GAP,
     alignItems: "center",
   },
@@ -437,18 +448,21 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   pillText: { fontSize: 14, fontWeight: "500" },
-  // The collapsible pinned pill's own horizontal padding moves onto
-  // pinnedPillInner instead, since pinnedPillFixed zeroes it out here - the
-  // padding needs to live around the *text content*, whose own natural
-  // sizing (from the probes below) already accounts for it, not doubled up
-  // on the outer box too.
-  pinnedPillFixed: { paddingHorizontal: 0 },
-  pinnedPillInner: {
+  // Whatever actually receives the tap carries the pill's metrics, so the
+  // touch target and the visible capsule are the same box. Shared by the
+  // plain Pill (where the touchable *is* the capsule) and PinnedPill (where
+  // it sits inside an Animated.View that owns the width animation).
+  pillInner: {
     paddingHorizontal: 16,
     paddingVertical: 8,
+    minHeight: PILL_MIN_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
   },
+  // PinnedPill's outer view is a background capsule and an animated width,
+  // nothing else - pillInner above supplies every bit of padding, so the
+  // two must not both apply it.
+  pillOuterReset: { paddingHorizontal: 0, paddingVertical: 0 },
   // Both labels stack on the exact same spot so the opacity cross-fade
   // reads as one label smoothly turning into the other, not two texts
   // sliding past each other.
