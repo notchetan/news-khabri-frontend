@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 
-import { TextInput } from "react-native";
+import { Platform, TextInput } from "react-native";
 
 import { fetchArticles, fetchCategories, type Article } from "@/api/articles";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -312,5 +312,52 @@ describe("SearchScreen", () => {
       },
       { timeout: 2000 }
     );
+  });
+
+  // Abandoning a query otherwise means holding backspace.
+  describe("clearing the query", () => {
+    const originalOS = Platform.OS;
+
+    afterEach(() => {
+      Platform.OS = originalOS;
+    });
+
+    it("uses the iOS system clear button rather than a custom one", async () => {
+      Platform.OS = "ios";
+      await act(async () => {
+        renderScreen();
+      });
+
+      const input = screen.getByTestId("search-input");
+      expect(input.props.clearButtonMode).toBe("while-editing");
+
+      await act(async () => {
+        fireEvent.changeText(input, "kerala");
+      });
+      // The system control is drawn natively; there is no view of ours.
+      expect(screen.queryByTestId("search-clear-button")).toBeNull();
+    });
+
+    it("renders its own clear button on Android, which empties the field", async () => {
+      Platform.OS = "android";
+      await act(async () => {
+        renderScreen();
+      });
+
+      const input = screen.getByTestId("search-input");
+      expect(screen.queryByTestId("search-clear-button")).toBeNull();
+
+      await act(async () => {
+        fireEvent.changeText(input, "kerala");
+      });
+      const clear = screen.getByTestId("search-clear-button");
+      expect(clear).toHaveProp("accessibilityLabel", "Clear search");
+
+      await act(async () => {
+        fireEvent.press(clear);
+      });
+      expect(screen.getByTestId("search-input").props.value).toBe("");
+      expect(screen.queryByTestId("search-clear-button")).toBeNull();
+    });
   });
 });

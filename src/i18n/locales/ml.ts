@@ -77,6 +77,7 @@ const ml: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "ആദ്യ വിഭാഗത്തിലേക്ക് മടങ്ങുക",
   tabSearch: "പര്യവേക്ഷണം ചെയ്യുക",
   searchPlaceholder: "ലേഖനങ്ങൾ തിരയുക",
+  clearSearch: "തിരയൽ മായ്ക്കുക",
   noArticlesFound: "ലേഖനങ്ങളൊന്നും കണ്ടെത്തിയില്ല.",
   noResultsForTemplate: "{query} എന്നതിനായി ഫലങ്ങളൊന്നും കണ്ടെത്തിയില്ല",
   topStories: "പ്രധാന വാർത്തകൾ",

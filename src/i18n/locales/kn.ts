@@ -77,6 +77,7 @@ const kn: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "ಮೊದಲ ವರ್ಗಕ್ಕೆ ಹಿಂತಿರುಗಿ",
   tabSearch: "ಎಕ್ಸ್‌ಪ್ಲೋರ್ ಮಾಡಿ",
   searchPlaceholder: "ಲೇಖನಗಳನ್ನು ಹುಡುಕಿ",
+  clearSearch: "ಹುಡುಕಾಟವನ್ನು ತೆರವುಗೊಳಿಸಿ",
   noArticlesFound: "ಯಾವುದೇ ಲೇಖನಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
   noResultsForTemplate: "{query} ಗಾಗಿ ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ",
   topStories: "ಪ್ರಮುಖ ಸುದ್ದಿಗಳು",

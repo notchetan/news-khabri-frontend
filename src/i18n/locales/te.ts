@@ -77,6 +77,7 @@ const te: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "మొదటి వర్గానికి తిరిగి వెళ్లండి",
   tabSearch: "అన్వేషించండి",
   searchPlaceholder: "కథనాలను శోధించండి",
+  clearSearch: "శోధనను తొలగించండి",
   noArticlesFound: "కథనాలు ఏవీ కనుగొనబడలేదు.",
   noResultsForTemplate: "{query} కోసం ఫలితాలు ఏవీ కనుగొనబడలేదు",
   topStories: "ముఖ్యమైన వార్తలు",

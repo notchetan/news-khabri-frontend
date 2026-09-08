@@ -77,6 +77,7 @@ const ta: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "முதல் பிரிவுக்குத் திரும்பு",
   tabSearch: "ஆராயுங்கள்",
   searchPlaceholder: "கட்டுரைகளைத் தேடு",
+  clearSearch: "தேடலை அழி",
   noArticlesFound: "கட்டுரைகள் எதுவும் கிடைக்கவில்லை.",
   noResultsForTemplate: "{query} க்கான முடிவுகள் எதுவும் கிடைக்கவில்லை",
   topStories: "முக்கிய செய்திகள்",

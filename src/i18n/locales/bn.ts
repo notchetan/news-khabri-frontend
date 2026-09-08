@@ -81,6 +81,7 @@ const bn: Record<keyof typeof en, string> = {
   scrollToFirstCategory: "প্রথম বিভাগে ফিরে যান",
   tabSearch: "এক্সপ্লোর করুন",
   searchPlaceholder: "নিবন্ধ খুঁজুন",
+  clearSearch: "খোঁজ মুছুন",
   noArticlesFound: "কোনো নিবন্ধ পাওয়া যায়নি।",
   noResultsForTemplate: "{query} এর জন্য কোনো ফলাফল পাওয়া যায়নি",
   topStories: "প্রধান খবর",
