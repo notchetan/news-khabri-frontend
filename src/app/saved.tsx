@@ -1,17 +1,13 @@
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import { Alert, Animated, FlatList, Platform, Pressable, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Alert, FlatList, Pressable, StyleSheet, View } from "react-native";
 
 import EmptyState from "@/components/empty-state";
 import FeedCard, { CARD_PADDING } from "@/components/feed-card";
-import FloatingDetailHeader, {
-  getContentTopPadding,
-  useHeaderScrollY,
-} from "@/components/floating-detail-header";
+import FloatingDetailHeader from "@/components/floating-detail-header";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useBookmarks } from "@/contexts/bookmarks-context";
+import { useDetailChrome } from "@/hooks/use-detail-chrome";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { articleHref, goBackOr } from "@/utils/navigation";
@@ -26,31 +22,20 @@ import { articleHref, goBackOr } from "@/utils/navigation";
 export default function SavedScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+
   const router = useRouter();
   const { bookmarks, isBookmarked, toggleBookmark, clearBookmarks } = useBookmarks();
 
-  const scrollY = useHeaderScrollY();
-  const [headerHeight, setHeaderHeight] = useState(0);
-
-  const topPadding = Platform.select({
-    default: insets.top + Spacing.two,
-    web: Spacing.six,
-  });
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  // Top-level route, so no native tab bar to reserve for - just the inset.
-  const contentBottomPadding =
-    Spacing.three + Platform.select({ web: 0, default: insets.bottom });
-
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    // false: FloatingDetailHeader animates layout props (maxWidth) the
-    // native driver can't touch - matches article-detail-screen.tsx.
-    { useNativeDriver: false }
-  );
+  // tabBar: false - a top-level route, so there is no native tab bar to
+  // reserve for at the bottom, just the safe-area inset.
+  const {
+    scrollY,
+    setHeaderHeight,
+    topPadding,
+    contentTopPadding,
+    contentBottomPadding,
+    handleScroll,
+  } = useDetailChrome({ tabBar: false });
 
   const goBack = () => goBackOr(router, "/");
 

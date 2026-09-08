@@ -4,30 +4,25 @@ import * as WebBrowser from "expo-web-browser";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fetchArticleDetail } from "@/api/articles";
 import { recordRead } from "@/api/reads";
 import ArticleImage from "@/components/article-image";
 import ErrorState from "@/components/error-state";
 import Icon from "@/components/icon";
-import FloatingDetailHeader, {
-  getContentTopPadding,
-  useHeaderScrollY,
-} from "@/components/floating-detail-header";
+import FloatingDetailHeader from "@/components/floating-detail-header";
 import Squircle from "@/components/squircle";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useBookmarks } from "@/contexts/bookmarks-context";
-import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
+import { useDetailChrome } from "@/hooks/use-detail-chrome";
 import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { formatPublishedDate } from "@/utils/format-date";
@@ -48,17 +43,19 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
   const { t } = useTranslation();
   const { token } = useAuth();
   const { isBookmarked, toggleBookmark } = useBookmarks();
-  const insets = useSafeAreaInsets();
-  const tabBarInset = useTabBarInset();
   const [showCaption, setShowCaption] = useState(false);
   const articleId = Number(id);
+  const scrollRef = useRef<ScrollView>(null);
   // Continuous scroll-position-driven collapse, not a discrete threshold -
   // see docs/animated-scroll-collapse.md.
-  const scrollY = useHeaderScrollY();
-  const scrollRef = useRef<ScrollView>(null);
-  // Measured height of the floating back/brand pill row - see
-  // docs/article-header-layout.md.
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const {
+    scrollY,
+    setHeaderHeight,
+    topPadding,
+    contentTopPadding,
+    contentBottomPadding,
+    handleScroll,
+  } = useDetailChrome();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["article", articleId],
@@ -79,23 +76,6 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
     if (!token) return;
     recordRead(token, articleId).catch(() => {});
   }, [token, articleId]);
-
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    // false: the animated maxWidth below is a layout property the native
-    // driver can't animate.
-    { useNativeDriver: false }
-  );
-
-  const topPadding = Platform.select({
-    default: insets.top + Spacing.two,
-    web: Spacing.six,
-  });
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
 
   const openOriginal = () => {
     if (data?.link) WebBrowser.openBrowserAsync(data.link);
@@ -138,7 +118,10 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
       />
 
       {isLoading ? (
-        <ArticleDetailSkeleton headerHeight={headerHeight} topPadding={topPadding} />
+        <ArticleDetailSkeleton
+          contentTopPadding={contentTopPadding}
+          contentBottomPadding={contentBottomPadding}
+        />
       ) : error || !data ? (
         <ErrorState
           testID="article-detail-error"
@@ -325,20 +308,14 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
 }
 
 function ArticleDetailSkeleton({
-  headerHeight,
-  topPadding,
+  contentTopPadding,
+  contentBottomPadding,
 }: {
-  headerHeight: number;
-  topPadding: number;
+  contentTopPadding: number;
+  contentBottomPadding: number;
 }) {
   const opacity = useSkeletonPulse();
   const theme = useTheme();
-  const tabBarInset = useTabBarInset();
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
 
   const block = { backgroundColor: theme.backgroundSelected, opacity };
   const { t } = useTranslation();

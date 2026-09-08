@@ -1,6 +1,5 @@
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { SymbolView } from "expo-symbols";
-import { useRef } from "react";
 import { Animated, Image, Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -203,18 +202,6 @@ export default function FloatingDetailHeader({
   );
 }
 
-// A single Animated.Value, module-free of any particular screen - callers
-// that don't need swipe-loop/activeId-driven resets (story-detail-screen.tsx)
-// can still use this the same way article-detail-screen.tsx does.
-export function useHeaderScrollY() {
-  return useRef(new Animated.Value(0)).current;
-}
-
-// See "Hero image starts below the header, not behind it" in
-// docs/article-header-layout.md.
-export function getContentTopPadding(headerHeight: number, topPadding: number): number {
-  return (headerHeight || topPadding + 44) + Spacing.two;
-}
 
 const styles = StyleSheet.create({
   statusBarScrim: {

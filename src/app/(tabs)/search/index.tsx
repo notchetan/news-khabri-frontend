@@ -14,7 +14,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
+
   TextInput,
   useWindowDimensions,
   View,
