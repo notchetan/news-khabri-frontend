@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { StyleSheet } from "react-native";
 
 import { LANGUAGE_OPTIONS } from "@/constants/languages";
+import { Colors } from "@/constants/theme";
 
 import { LanguagePreferenceProvider } from "@/contexts/language-preference";
 import { ThemePreferenceProvider } from "@/contexts/theme-preference";
@@ -82,5 +83,20 @@ describe("OnboardingLanguagePicker", () => {
       const style = StyleSheet.flatten(row.props.style);
       expect(style.minHeight).toBeGreaterThanOrEqual(44);
     }
+  });
+
+  // The popup's own surface is only 1.12:1 against the screen behind it,
+  // so its border is the entire boundary between the two.
+  it("draws the popup boundary in a colour that is actually visible", async () => {
+    await act(async () => {
+      renderPicker();
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByRole("button", { name: "Language" }));
+    });
+
+    const dropdown = screen.getByTestId("onboarding-language-dropdown");
+    const style = StyleSheet.flatten(dropdown.props.style);
+    expect(style.borderColor).toBe(Colors.light.textSecondary);
   });
 });
