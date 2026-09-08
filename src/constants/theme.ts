@@ -16,7 +16,12 @@ export const Colors = {
     // of the plain text/background inversion those used before, and for
     // ThemedText's "linkPrimary" type, replacing a leftover hardcoded
     // '#3c87f7' that didn't match anything else in the app.
-    tint: '#A8552E',
+    //
+    // Darkened from '#A8552E', which was 4.38:1 on backgroundElement - just
+    // under AA, and live as the toast's action link. See
+    // __tests__/theme-contrast.test.ts, which pins every pairing the app
+    // actually renders.
+    tint: '#9E4E29',
     tintText: '#FFF9F2',
     // Destructive actions only (e.g. "Clear all" on the Saved screen). A
     // muted brick red rather than iOS's stock '#FF3B30' so it still reads
