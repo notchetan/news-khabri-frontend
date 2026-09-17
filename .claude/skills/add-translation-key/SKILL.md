@@ -1,7 +1,6 @@
 ---
 name: add-translation-key
 description: Add a new UI string across all ten locale files, or change an existing one, keeping placeholders and key ordering consistent.
-disable-model-invocation: true
 ---
 
 # Add a translation key

@@ -1,7 +1,6 @@
 ---
 name: add-preference
 description: Add a persisted user preference through createPersistedPreference, wiring its context, hook, provider registration, settings row, test, and (if it syncs) the account bundle.
-disable-model-invocation: true
 ---
 
 # Add a preference

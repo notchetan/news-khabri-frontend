@@ -1,7 +1,6 @@
 ---
 name: verify-android
 description: Boot the Pixel_10_Pro_XL emulator, run the app on it, and capture screenshots to verify a visual, animated, or measurement-dependent change on a real Android surface.
-disable-model-invocation: true
 ---
 
 # Verify on Android
