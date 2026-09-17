@@ -56,3 +56,6 @@ coverage/
 .claude/settings.local.json
 .claude/*.lock
 
+
+# graphify knowledge-graph output
+graphify-out/
