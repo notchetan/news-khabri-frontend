@@ -1,12 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { useEffect } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppleSignInButton } from "@/components/apple-sign-in-button";
+import Icon from "@/components/icon";
 import { OnboardingDots } from "@/components/onboarding-dots";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -67,12 +67,12 @@ export default function OnboardingSignInScreen() {
           contentContainerStyle={styles.scrollContent}
         >
         <ThemedView style={styles.content}>
-          <SymbolView
-            name="person.crop.circle.badge.checkmark"
+          <Icon
+            sf="person.crop.circle.badge.checkmark"
+            ion="person-circle-outline"
             size={64}
             weight="regular"
-            tintColor={theme.tint}
-            fallback={<Ionicons name="person-circle-outline" size={64} color={theme.tint} />}
+            color={theme.tint}
           />
           <ThemedText type="subtitle" style={styles.title} accessibilityRole="header">
             {t("onboardingSignInTitle")}

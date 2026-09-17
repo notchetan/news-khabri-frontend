@@ -1,7 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, type ViewStyle } from "react-native";
 
+import Icon from "@/components/icon";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -45,12 +44,12 @@ export function OnboardingNextButton({
       <ThemedText type="default" style={{ color: theme.tintText }}>
         {t("onboardingNext")}
       </ThemedText>
-      <SymbolView
-        name="chevron.right"
+      <Icon
+        sf="chevron.right"
+        ion="chevron-forward"
         size={15}
         weight="semibold"
-        tintColor={theme.tintText}
-        fallback={<Ionicons name="chevron-forward" size={15} color={theme.tintText} />}
+        color={theme.tintText}
       />
     </Pressable>
   );

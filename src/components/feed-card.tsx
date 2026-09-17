@@ -1,8 +1,7 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { SymbolView } from "expo-symbols";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import ArticleImage from "@/components/article-image";
+import Icon from "@/components/icon";
 import Squircle from "@/components/squircle";
 import { ThemedText } from "@/components/themed-text";
 import { Radius } from "@/constants/theme";
@@ -84,18 +83,12 @@ export default function FeedCard({
             accessibilityState={{ selected: !!bookmarked }}
             accessibilityLabel={bookmarkAccessibilityLabel}
           >
-            <SymbolView
-              name={bookmarked ? "bookmark.fill" : "bookmark"}
+            <Icon
+              sf={bookmarked ? "bookmark.fill" : "bookmark"}
+              ion={bookmarked ? "bookmark" : "bookmark-outline"}
               size={13}
               weight="bold"
-              tintColor="#fff"
-              fallback={
-                <Ionicons
-                  name={bookmarked ? "bookmark" : "bookmark-outline"}
-                  size={13}
-                  color="#fff"
-                />
-              }
+              color="#fff"
             />
           </TouchableOpacity>
         )}

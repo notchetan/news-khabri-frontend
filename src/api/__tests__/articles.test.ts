@@ -4,7 +4,6 @@ import {
   fetchArticleDetail,
   fetchArticles,
   fetchCategories,
-  fetchLanguages,
   type Article,
 } from "../articles";
 
@@ -146,24 +145,3 @@ describe("fetchCategories", () => {
   });
 });
 
-describe("fetchLanguages", () => {
-  it("requests the languages endpoint", async () => {
-    mockFetchOnce(["en", "hi"]);
-
-    const result = await fetchLanguages();
-
-    expect(result).toEqual(["en", "hi"]);
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/languages"),
-      expect.objectContaining({ signal: expect.anything() })
-    );
-  });
-
-  it("throws when the response is not ok", async () => {
-    mockFetchOnce([], false);
-
-    await expect(fetchLanguages()).rejects.toThrow(
-      "Failed to fetch languages"
-    );
-  });
-});

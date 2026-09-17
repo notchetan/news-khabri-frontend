@@ -1,38 +1,32 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { fetchArticleDetail } from "@/api/articles";
 import { recordRead } from "@/api/reads";
 import ArticleImage from "@/components/article-image";
 import ErrorState from "@/components/error-state";
-import FloatingDetailHeader, {
-  getContentTopPadding,
-  useHeaderScrollY,
-} from "@/components/floating-detail-header";
+import Icon from "@/components/icon";
+import FloatingDetailHeader from "@/components/floating-detail-header";
 import Squircle from "@/components/squircle";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useBookmarks } from "@/contexts/bookmarks-context";
-import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
+import { useDetailChrome } from "@/hooks/use-detail-chrome";
 import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { formatPublishedDate } from "@/utils/format-date";
-import { articleHref } from "@/utils/navigation";
+import { articleHref, goBackOr, shareLink } from "@/utils/navigation";
 import { stripHtml } from "@/utils/strip-html";
 import { useTranslation } from "@/i18n/translations";
 import { useQuery } from "@tanstack/react-query";
@@ -49,17 +43,19 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
   const { t } = useTranslation();
   const { token } = useAuth();
   const { isBookmarked, toggleBookmark } = useBookmarks();
-  const insets = useSafeAreaInsets();
-  const tabBarInset = useTabBarInset();
   const [showCaption, setShowCaption] = useState(false);
   const articleId = Number(id);
+  const scrollRef = useRef<ScrollView>(null);
   // Continuous scroll-position-driven collapse, not a discrete threshold -
   // see docs/animated-scroll-collapse.md.
-  const scrollY = useHeaderScrollY();
-  const scrollRef = useRef<ScrollView>(null);
-  // Measured height of the floating back/brand pill row - see
-  // docs/article-header-layout.md.
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const {
+    scrollY,
+    setHeaderHeight,
+    topPadding,
+    contentTopPadding,
+    contentBottomPadding,
+    handleScroll,
+  } = useDetailChrome();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["article", articleId],
@@ -81,45 +77,13 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
     recordRead(token, articleId).catch(() => {});
   }, [token, articleId]);
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    // false: the animated maxWidth below is a layout property the native
-    // driver can't animate.
-    { useNativeDriver: false }
-  );
-
-  const topPadding = Platform.select({
-    default: insets.top + Spacing.two,
-    web: Spacing.six,
-  });
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
-
   const openOriginal = () => {
     if (data?.link) WebBrowser.openBrowserAsync(data.link);
   };
 
-  const shareArticle = async () => {
+  const shareArticle = () => {
     if (!data?.link) return;
-    try {
-      // Android's share sheet only reads `message` - `url` is silently
-      // dropped there, so the link has to be folded into the message text
-      // to actually reach the target app. iOS handles `url` as its own
-      // field (and web's Share shim - see react-native-web - forwards both
-      // separately to navigator.share), so it can stay split there.
-      await Share.share(
-        Platform.OS === "ios"
-          ? { title: data.title, url: data.link }
-          : { message: `${data.title}\n${data.link}` },
-        { dialogTitle: data.title }
-      );
-    } catch {
-      // Share sheet dismissed, or unsupported (e.g. desktop web without a
-      // navigator.share implementation) - nothing to recover from, no-op.
-    }
+    shareLink(data.title, data.link);
   };
 
   const saved = data ? isBookmarked(data.id) : false;
@@ -137,17 +101,7 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
     });
   };
 
-  // router.back() warns/no-ops when this screen has no prior route to pop -
-  // e.g. opened via a direct link or a web page reload, which drops the
-  // stack down to just this screen. Fall back to this stack's own root in
-  // that case.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(homePath);
-    }
-  };
+  const goBack = () => goBackOr(router, homePath);
 
   const publishedLabel = data ? formatPublishedDate(data.published_at) : null;
   // The RSS snippet, flattened to plain text - the app summarises and
@@ -164,7 +118,10 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
       />
 
       {isLoading ? (
-        <ArticleDetailSkeleton headerHeight={headerHeight} topPadding={topPadding} />
+        <ArticleDetailSkeleton
+          contentTopPadding={contentTopPadding}
+          contentBottomPadding={contentBottomPadding}
+        />
       ) : error || !data ? (
         <ErrorState
           testID="article-detail-error"
@@ -233,11 +190,11 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
 
           <View testID="article-meta-row" style={styles.metaRow}>
             <View testID="article-meta-text-block" style={styles.metaTextBlock}>
-              <ThemedText themeColor="textSecondary" style={styles.meta}>
+              <ThemedText themeColor="textSecondary">
                 {data.source}
               </ThemedText>
               {(publishedLabel || data.read_time_minutes) && (
-                <ThemedText themeColor="textSecondary" style={styles.meta}>
+                <ThemedText themeColor="textSecondary">
                   {[
                     publishedLabel,
                     data.read_time_minutes
@@ -259,18 +216,12 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
                 accessibilityState={{ selected: saved }}
                 accessibilityLabel={saved ? t("removeBookmark") : t("save")}
               >
-                <SymbolView
-                  name={saved ? "bookmark.fill" : "bookmark"}
+                <Icon
+                  sf={saved ? "bookmark.fill" : "bookmark"}
+                  ion={saved ? "bookmark" : "bookmark-outline"}
                   size={16}
                   weight="semibold"
-                  tintColor={theme.text}
-                  fallback={
-                    <Ionicons
-                      name={saved ? "bookmark" : "bookmark-outline"}
-                      size={16}
-                      color={theme.text}
-                    />
-                  }
+                  color={theme.text}
                 />
               </TouchableOpacity>
 
@@ -280,12 +231,12 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
                 accessibilityRole="button"
                 accessibilityLabel={t("share")}
               >
-                <SymbolView
-                  name="square.and.arrow.up"
+                <Icon
+                  sf="square.and.arrow.up"
+                  ion="share-outline"
                   size={16}
                   weight="semibold"
-                  tintColor={theme.text}
-                  fallback={<Ionicons name="share-outline" size={16} color={theme.text} />}
+                  color={theme.text}
                 />
                 <ThemedText style={styles.shareButtonText}>{t("share")}</ThemedText>
               </TouchableOpacity>
@@ -357,20 +308,14 @@ export default function ArticleDetailScreen({ basePath, homePath }: Props) {
 }
 
 function ArticleDetailSkeleton({
-  headerHeight,
-  topPadding,
+  contentTopPadding,
+  contentBottomPadding,
 }: {
-  headerHeight: number;
-  topPadding: number;
+  contentTopPadding: number;
+  contentBottomPadding: number;
 }) {
   const opacity = useSkeletonPulse();
   const theme = useTheme();
-  const tabBarInset = useTabBarInset();
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
 
   const block = { backgroundColor: theme.backgroundSelected, opacity };
   const { t } = useTranslation();
@@ -464,7 +409,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.three,
   },
   metaTextBlock: { gap: 2 },
-  meta: {},
   summary: { marginTop: Spacing.two },
   // The primary action on this screen now - a filled button, since the
   // full article lives on the publisher's site, not here.

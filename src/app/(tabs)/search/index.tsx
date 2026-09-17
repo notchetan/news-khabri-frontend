@@ -1,9 +1,8 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { SymbolView } from "expo-symbols";
 
 import { fetchCategories } from "@/api/articles";
 import AppHeader from "@/components/app-header";
 import ArticleList from "@/components/article-list";
+import Icon from "@/components/icon";
 import Squircle from "@/components/squircle";
 import { ThemedText } from "@/components/themed-text";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +14,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
+
   TextInput,
   useWindowDimensions,
   View,
@@ -149,13 +148,11 @@ export default function SearchScreen() {
               accessibilityRole="button"
               accessibilityLabel={t("clearSearch")}
             >
-              <SymbolView
-                name="xmark.circle.fill"
+              <Icon
+                sf="xmark.circle.fill"
+                ion="close-circle"
                 size={18}
-                tintColor={theme.textSecondary}
-                fallback={
-                  <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
-                }
+                color={theme.textSecondary}
               />
             </Pressable>
           )}
@@ -189,17 +186,11 @@ export default function SearchScreen() {
                   accessibilityLabel={label}
                   style={[styles.card, { width: cardWidth, height: cardHeight }]}
                 >
-                  <SymbolView
-                    name={getCategoryGlyph(cat)}
+                  <Icon
+                    sf={getCategoryGlyph(cat)}
+                    ion={getCategoryIonicon(cat)}
                     size={CARD_ICON_SIZE}
-                    tintColor={theme.tint}
-                    fallback={
-                      <Ionicons
-                        name={getCategoryIonicon(cat)}
-                        size={CARD_ICON_SIZE}
-                        color={theme.tint}
-                      />
-                    }
+                    color={theme.tint}
                   />
                   {/* unscaled: the card's height is derived from its width
                       via CARD_ASPECT_RATIO, so it cannot grow with the

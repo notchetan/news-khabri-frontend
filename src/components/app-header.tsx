@@ -1,8 +1,7 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { Image, Platform, Pressable, StyleSheet, View } from "react-native";
 
+import Icon from "@/components/icon";
 import { ThemedText } from "@/components/themed-text";
 import { MIN_TOUCH_TARGET, Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
@@ -61,13 +60,7 @@ export default function AppHeader({ title }: Props) {
           accessibilityRole="button"
           accessibilityLabel={t("savedArticlesTitle")}
         >
-          <SymbolView
-            name="bookmark"
-            size={24}
-            weight="regular"
-            tintColor={theme.text}
-            fallback={<Ionicons name="bookmark-outline" size={24} color={theme.text} />}
-          />
+          <Icon sf="bookmark" ion="bookmark-outline" size={24} weight="regular" color={theme.text} />
         </Pressable>
 
         <Pressable
@@ -84,12 +77,12 @@ export default function AppHeader({ title }: Props) {
               style={styles.avatar}
             />
           ) : (
-            <SymbolView
-              name="person.crop.circle"
+            <Icon
+              sf="person.crop.circle"
+              ion="person-circle"
               size={28}
               weight="regular"
-              tintColor={theme.text}
-              fallback={<Ionicons name="person-circle" size={28} color={theme.text} />}
+              color={theme.text}
             />
           )}
         </Pressable>

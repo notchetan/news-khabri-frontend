@@ -1,35 +1,28 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { recordRead } from "@/api/reads";
 import { fetchStoryDetail } from "@/api/stories";
 import ArticleImage from "@/components/article-image";
 import ErrorState from "@/components/error-state";
-import FloatingDetailHeader, {
-  getContentTopPadding,
-  useHeaderScrollY,
-} from "@/components/floating-detail-header";
+import Icon from "@/components/icon";
+import FloatingDetailHeader from "@/components/floating-detail-header";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
-import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
+import { useDetailChrome } from "@/hooks/use-detail-chrome";
 import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { formatRelativeTime } from "@/utils/format-date";
-import { articleHref } from "@/utils/navigation";
+import { articleHref, goBackOr, shareLink } from "@/utils/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Animated,
-  Platform,
   ScrollView,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Stories only exist under the home tab, so unlike ArticleDetailScreen
 // there's nothing to parameterize - these were single-member unions, i.e.
@@ -44,14 +37,16 @@ export default function StoryDetailScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { token } = useAuth();
-  const insets = useSafeAreaInsets();
-  const tabBarInset = useTabBarInset();
   // Continuous scroll-position-driven collapse - see
   // docs/animated-scroll-collapse.md.
-  const scrollY = useHeaderScrollY();
-  // Measured height of the floating back/brand pill row - see
-  // docs/article-header-layout.md.
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const {
+    scrollY,
+    setHeaderHeight,
+    topPadding,
+    contentTopPadding,
+    contentBottomPadding,
+    handleScroll,
+  } = useDetailChrome();
 
   const storyId = Number(id);
   const { data, isLoading, error, refetch } = useQuery({
@@ -59,30 +54,8 @@ export default function StoryDetailScreen() {
     queryFn: () => fetchStoryDetail(storyId),
   });
 
-  const topPadding = Platform.select({
-    default: insets.top + Spacing.two,
-    web: Spacing.six,
-  });
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    // false: the animated maxWidth inside FloatingDetailHeader is a layout
-    // property the native driver can't animate.
-    { useNativeDriver: false }
-  );
-
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(HOME_PATH);
-    }
-  };
+  const goBack = () => goBackOr(router, HOME_PATH);
 
   const updatedLabel = data ? formatRelativeTime(data.latestPublishedAt, t) : null;
 
@@ -90,21 +63,10 @@ export default function StoryDetailScreen() {
   // member article) - the representative article's own link is the closest
   // real, dereferenceable thing to share, same choice the hero image above
   // already makes for its source.
-  const shareStory = async () => {
+  const shareStory = () => {
     const link = data?.representativeArticle?.link;
     if (!data || !link) return;
-    try {
-      // See ArticleDetailScreen's shareArticle for why Android needs the
-      // link folded into `message` rather than passed as `url`.
-      await Share.share(
-        Platform.OS === "ios"
-          ? { title: data.title, url: link }
-          : { message: `${data.title}\n${link}` },
-        { dialogTitle: data.title }
-      );
-    } catch {
-      // Share sheet dismissed, or unsupported - nothing to recover from.
-    }
+    shareLink(data.title, link);
   };
 
   // See docs/story-detail-screen.md.
@@ -136,7 +98,10 @@ export default function StoryDetailScreen() {
       />
 
       {isLoading || isSingleton ? (
-        <StoryDetailSkeleton headerHeight={headerHeight} topPadding={topPadding} />
+        <StoryDetailSkeleton
+          contentTopPadding={contentTopPadding}
+          contentBottomPadding={contentBottomPadding}
+        />
       ) : error || !data ? (
         <ErrorState
           testID="story-detail-error"
@@ -165,13 +130,13 @@ export default function StoryDetailScreen() {
 
           <View style={styles.metaRow}>
             <View style={styles.metaTextBlock}>
-              <ThemedText themeColor="textSecondary" style={styles.meta}>
+              <ThemedText themeColor="textSecondary">
                 {t("storySourcesTemplate", { count: String(data.sourceCount) })}
                 {" · "}
                 {t("storyArticlesTemplate", { count: String(data.articleCount) })}
               </ThemedText>
               {updatedLabel && (
-                <ThemedText themeColor="textSecondary" style={styles.meta}>
+                <ThemedText themeColor="textSecondary">
                   {t("storyUpdatedTemplate", { time: updatedLabel })}
                 </ThemedText>
               )}
@@ -183,12 +148,12 @@ export default function StoryDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={t("share")}
             >
-              <SymbolView
-                name="square.and.arrow.up"
+              <Icon
+                sf="square.and.arrow.up"
+                ion="share-outline"
                 size={16}
                 weight="semibold"
-                tintColor={theme.text}
-                fallback={<Ionicons name="share-outline" size={16} color={theme.text} />}
+                color={theme.text}
               />
               <ThemedText style={styles.shareButtonText}>{t("share")}</ThemedText>
             </TouchableOpacity>
@@ -243,21 +208,15 @@ export default function StoryDetailScreen() {
 // same start-below-the-header math) but shaped to this screen's layout:
 // hero, title, meta, summary, then a couple of member rows.
 function StoryDetailSkeleton({
-  headerHeight,
-  topPadding,
+  contentTopPadding,
+  contentBottomPadding,
 }: {
-  headerHeight: number;
-  topPadding: number;
+  contentTopPadding: number;
+  contentBottomPadding: number;
 }) {
   const opacity = useSkeletonPulse();
   const theme = useTheme();
-  const tabBarInset = useTabBarInset();
   const { t } = useTranslation();
-  const contentTopPadding = Platform.select({
-    default: getContentTopPadding(headerHeight, topPadding),
-    web: Spacing.six,
-  });
-  const contentBottomPadding = Spacing.three + tabBarInset;
 
   const block = { backgroundColor: theme.backgroundSelected, opacity };
 
@@ -328,7 +287,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   shareButtonText: { fontSize: 14, fontWeight: "600" },
-  meta: {},
   summary: { marginTop: Spacing.three },
   membersSection: { marginTop: Spacing.five },
   membersHeading: { letterSpacing: 0.5, marginBottom: Spacing.two },

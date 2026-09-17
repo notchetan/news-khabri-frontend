@@ -71,10 +71,6 @@ export async function fetchCategories(
   });
 }
 
-export async function fetchLanguages(): Promise<string[]> {
-  return apiFetch("/languages", { errorMessage: "Failed to fetch languages" });
-}
-
 export async function fetchSources(language: string): Promise<string[]> {
   return apiFetch(`/sources?language=${language}`, {
     errorMessage: "Failed to fetch sources",

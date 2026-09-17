@@ -6,12 +6,14 @@ import { Alert, Image, Platform, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppleSignInButton } from "@/components/apple-sign-in-button";
+import Icon from "@/components/icon";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Radius, Spacing } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
+import { goBackOr } from "@/utils/navigation";
 
 // Reachable from the profile button in AppHeader on every tab that shows
 // one. Its own back button below follows the same pattern as
@@ -37,13 +39,7 @@ export default function ProfileScreen() {
     web: Spacing.six,
   });
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
+  const goBack = () => goBackOr(router, "/");
 
   const confirmDeleteAccount = () => {
     Alert.alert(
@@ -98,12 +94,12 @@ export default function ProfileScreen() {
                 style={styles.avatar}
               />
             ) : (
-              <SymbolView
-                name="person.crop.circle"
+              <Icon
+                sf="person.crop.circle"
+                ion="person-circle"
                 size={64}
                 weight="regular"
-                tintColor={theme.textSecondary}
-                fallback={<Ionicons name="person-circle" size={64} color={theme.textSecondary} />}
+                color={theme.textSecondary}
               />
             )}
             <ThemedText type="subtitle" style={styles.title} accessibilityRole="header">
@@ -138,12 +134,12 @@ export default function ProfileScreen() {
           </>
         ) : (
           <>
-            <SymbolView
-              name="person.crop.circle"
+            <Icon
+              sf="person.crop.circle"
+              ion="person-circle"
               size={48}
               weight="regular"
-              tintColor={theme.textSecondary}
-              fallback={<Ionicons name="person-circle" size={48} color={theme.textSecondary} />}
+              color={theme.textSecondary}
             />
             <ThemedText type="subtitle" style={styles.title} accessibilityRole="header">
               {t("profileTitle")}

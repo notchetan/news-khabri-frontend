@@ -9,6 +9,7 @@ import { useTabBarInset } from "@/hooks/use-tab-bar-inset";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "@/i18n/translations";
 import { categoryLabelKey } from "@/utils/category-label";
+import { goBackOr } from "@/utils/navigation";
 
 export default function SearchCategoryScreen() {
   const { category } = useLocalSearchParams<{ category: string }>();
@@ -32,15 +33,7 @@ export default function SearchCategoryScreen() {
     return key ? t(key) : category.charAt(0).toUpperCase() + category.slice(1);
   })();
 
-  // router.back() warns/no-ops when this screen has no prior route to pop -
-  // e.g. opened via a direct link - fall back to the Search tab's root.
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/search");
-    }
-  };
+  const goBack = () => goBackOr(router, "/search");
 
   return (
     <View

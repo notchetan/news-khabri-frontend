@@ -1,9 +1,8 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
-import { SymbolView } from "expo-symbols";
 import { Fragment } from "react";
 import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
 
+import Icon from "@/components/icon";
 import { ThemedText } from "@/components/themed-text";
 import { Radius, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -87,14 +86,12 @@ export function OnboardingLegalConsent({
           ]}
         >
           {accepted && (
-            <SymbolView
-              name="checkmark"
+            <Icon
+              sf="checkmark"
+              ion="checkmark"
               size={13}
               weight="bold"
-              tintColor={theme.tintText}
-              fallback={
-                <Ionicons name="checkmark" size={13} color={theme.tintText} />
-              }
+              color={theme.tintText}
             />
           )}
         </View>
