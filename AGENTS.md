@@ -305,26 +305,35 @@ hook that shells out to it silently does nothing).
   using it. Advisory, since writing a pointer before the doc is normal.
 - **Stop -> `verify-on-stop.js`.** Runs `tsc --noEmit` then the full jest
   suite, but only when `git diff HEAD -- src/` is non-empty, so a
-  question-answering turn doesn't trigger a ~100s run. Reports via
-  `systemMessage`; deliberately non-blocking, since a Stop hook that refuses
-  to stop can loop.
-- **Subagents:** `translation-reviewer` (the locale failures tsc and the
-  placeholder hook cannot see - wrong terminology within a locale,
+  question-answering turn doesn't trigger a ~100s run. Then runs the sibling
+  backend's own Stop hook (which gates on the backend's diff): sessions start
+  in this repo, and a project's hooks only load from the launch directory.
+  Reports via `systemMessage`; deliberately non-blocking, since a Stop hook
+  that refuses to stop can loop.
+- **Subagents - run them before opening the PR, not on request:**
+  `a11y-reviewer` on any diff adding or changing a touchable, icon-only
+  control, settings row or fixed-height chrome (44pt/48dp targets, one
+  heading per screen, labelled icon-only controls, font-scale resilience -
+  the checks behind #42, #51, #53 and #57); `rn-layout-reviewer` on any diff
+  touching `Animated`, `onLayout`, insets, `KeyboardAvoidingView` or flex
+  sizing (this file's lessons turned into a checklist);
+  `translation-reviewer` on any diff touching `src/i18n/locales/` (the
+  failures tsc and the placeholder hook cannot see - wrong terminology,
   over-translating a term the other nine keep transliterated, a word bound to
-  two meanings, missing sandhi, a label too long for its control),
-  `a11y-reviewer` (44pt targets, one heading per screen, labelled icon-only
-  controls, font-scale resilience - the checks behind #42, #51, #53 and #57),
-  `rn-layout-reviewer` (this file's Animated/onLayout lessons
-  turned into a review checklist) and `test-writer`.
-- **Skills:** `/verify-android` (Pixel_10_Pro_XL emulator loop),
-  `/add-translation-key`, `/add-preference` (the
+  two meanings, missing sandhi, a label too long for its control).
+- **Skills:** `verify-android` (Pixel_10_Pro_XL emulator loop - use it for
+  the live check the testing section requires, instead of hand-rolling
+  `adb`), `add-translation-key`, `add-preference` (the
   `createPersistedPreference` factory, its codec contract, provider order,
   and the account-bundle/backend-column half that a device-local preference
-  skips) and `/release` (the OTA-vs-store-build fork that
-  `runtimeVersion: appVersion` forces, plus pre-flight). All user-invocable
-  only.
+  skips) - all three model-invocable. `/release` (the OTA-vs-store-build fork
+  that `runtimeVersion: appVersion` forces, plus pre-flight) stays
+  user-invocable only, since shipping is the user's call.
 - **MCP:** `context7` for version-pinned Expo/RN docs (this file's opening
-  rule, automated) and `sentry`. Both need approving via `/mcp` once.
+  rule, automated). Sentry's MCP comes from the user-level `sentry` plugin,
+  not this repo's `.mcp.json`; authorize it via `/mcp` once Sentry is live.
+- **Plugins** (`.claude/settings.json`): `expo`, `code-review`,
+  `claude-code-setup`.
 
 ## Repo state
 
