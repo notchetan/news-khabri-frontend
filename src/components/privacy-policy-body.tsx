@@ -44,13 +44,18 @@ export default function PrivacyPolicyBody() {
       </ThemedText>
 
       <ThemedText type="smallBold" style={styles.heading}>
-        IF YOU SIGN IN WITH GOOGLE
+        IF YOU SIGN IN
       </ThemedText>
       <ThemedText style={styles.paragraph}>
-        We receive and store your Google account's name, email address,
-        profile picture URL, and a stable Google account identifier, so we
-        can recognise your account on a future sign-in. We use this only to
-        operate your account — not for advertising, and we don't sell it.
+        You can sign in with Google or, on iPhone, with Apple. With Google,
+        we receive and store your Google account's name, email address,
+        profile picture URL, and a stable Google account identifier. With
+        Apple, we receive and store a stable Apple account identifier, your
+        email address (an Apple private relay address if you chose to hide
+        yours), your name if you choose to share it, and a token used only
+        to revoke News Khabri's access when you delete your account. We use
+        this only to recognise and operate your account — not for
+        advertising, and we don't sell it.
       </ThemedText>
       <ThemedText style={styles.paragraph}>
         While you are signed in, the preferences listed above and your
@@ -78,7 +83,9 @@ export default function PrivacyPolicyBody() {
       <ThemedText style={styles.paragraph}>
         You can delete your account at any time from the Profile screen.
         This permanently removes your account and everything synced to it —
-        your synced preferences, saved articles, and reading history. Data
+        your synced preferences, saved articles, and reading history — and,
+        if you signed in with Apple, revokes News Khabri's access to your
+        Apple ID. Data
         kept only on your device is cleared by signing out or uninstalling
         the app. Questions or requests: support@newskhabri.app.
       </ThemedText>
@@ -90,7 +97,19 @@ export default function PrivacyPolicyBody() {
         Tapping "Read on [Source]" or an article's original link opens that
         publisher's own website, outside News Khabri. Once you're there,
         their privacy policy applies, not ours. Sign-in is handled by
-        Google, whose own privacy policy covers that step.
+        Google or Apple, whose own privacy policies cover that step.
+      </ThemedText>
+
+      <ThemedText type="smallBold" style={styles.heading}>
+        CRASH REPORTS
+      </ThemedText>
+      <ThemedText style={styles.paragraph}>
+        If the app crashes or hits an unexpected error, a crash report is
+        sent to Sentry, the error-monitoring service we use. It contains
+        technical details such as the error, the screens and network
+        requests leading up to it, your device model, operating system, and
+        app version. We use it only to find and fix bugs, and we don't add
+        your name, email address, or reading history to it.
       </ThemedText>
 
       <ThemedText type="smallBold" style={styles.heading}>

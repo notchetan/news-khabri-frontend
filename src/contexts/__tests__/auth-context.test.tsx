@@ -155,6 +155,7 @@ describe("AuthProvider preference sync", () => {
   it("signInWithApple exchanges the Apple credential (incl. first-time name) for a session", async () => {
     mockAppleSignInAsync.mockResolvedValue({
       identityToken: "apple-identity-token",
+      authorizationCode: "apple-auth-code",
       fullName: { givenName: "Chetan", familyName: "Shetty" },
     });
     mockSignInWithApple.mockResolvedValue({
@@ -170,10 +171,11 @@ describe("AuthProvider preference sync", () => {
     });
     await waitFor(() => expect(result.current.auth.user).not.toBeNull());
 
-    expect(mockSignInWithApple).toHaveBeenCalledWith("apple-identity-token", {
-      givenName: "Chetan",
-      familyName: "Shetty",
-    });
+    expect(mockSignInWithApple).toHaveBeenCalledWith(
+      "apple-identity-token",
+      { givenName: "Chetan", familyName: "Shetty" },
+      "apple-auth-code"
+    );
     expect(result.current.auth.token).toBe("apple-session-token");
     expect(result.current.auth.user?.email).toBe("chetan@privaterelay.appleid.com");
   });

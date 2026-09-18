@@ -373,6 +373,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       GoogleSignin.configure({
         webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+        // iOS needs its own OAuth client - see docs/google-sign-in.md.
+        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || undefined,
       });
       await GoogleSignin.hasPlayServices();
       const result = await GoogleSignin.signIn();
@@ -401,7 +403,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (!credential.identityToken) return; // Nothing to verify server-side.
       await establishSession(
-        await signInWithApple(credential.identityToken, credential.fullName)
+        await signInWithApple(
+          credential.identityToken,
+          credential.fullName,
+          credential.authorizationCode
+        )
       );
     } catch (err) {
       // A user cancelling the native sheet isn't an error worth surfacing.

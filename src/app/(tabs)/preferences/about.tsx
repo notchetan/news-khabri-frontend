@@ -50,7 +50,7 @@ export default function AboutScreen() {
       </ThemedText>
       <ThemedText style={styles.paragraph}>
         You can use News Khabri without signing in. Signing in with Google
-        is optional - it syncs your preferences and saved articles across
+        or Apple is optional - it syncs your preferences and saved articles across
         devices and personalises story ranking. You can delete your
         account and its data any time from the Profile screen. See the
         Privacy Policy for the details.
