@@ -70,6 +70,19 @@ this is already satisfied — no `expo-build-properties` override needed.
 - [ ] **Sentry** — create the project, set `EXPO_PUBLIC_SENTRY_DSN` per
       env and `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` as EAS
       secrets (see `src/observability/sentry.ts`).
+- [ ] **Google iOS OAuth client** — create it (bundle ID
+      `com.newskhabri.app`) and set `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` in
+      `.env`; `app.config.js` refuses an iOS EAS build without it. See
+      `docs/google-sign-in.md`.
+- [ ] **Google Android SHA-1s** — register the Play App Signing key's and
+      the EAS upload key's SHA-1 on the Android OAuth client, or sign-in
+      fails with `DEVELOPER_ERROR` on every Play install.
+- [ ] **Sign in with Apple key** — create a key with Sign in with Apple
+      enabled and set `APPLE_TEAM_ID` / `APPLE_KEY_ID` / `APPLE_PRIVATE_KEY`
+      on the backend, so account deletion revokes Apple tokens (Guideline
+      5.1.1(v)). See the backend's `docs/apple-sign-in.md`.
+- [ ] **Account-deletion web page** — Play requires a URL where users can
+      request deletion without reinstalling the app.
 
 ### App Store Connect
 
@@ -77,15 +90,17 @@ this is already satisfied — no `expo-build-properties` override needed.
 - [ ] `submit.production.ios`: `appleId`, `ascAppId`, `appleTeamId` (or let
       `eas submit` prompt).
 - [ ] **Privacy nutrition labels** — declare: account (email, name),
-      identifiers (Google `sub`), user content (bookmarks), usage data
-      (reading history for ranking), and the Expo push token. Nothing is
-      used for tracking.
+      identifiers (Google / Apple `sub`), user content (bookmarks), usage
+      data (reading history for ranking), the Expo push token, and crash
+      data + diagnostics (Sentry) once it's on. Nothing is used for
+      tracking.
 - [ ] Age rating — news / user-generated-adjacent content, likely 17+.
 - [ ] Screenshots: 6.9" and 6.5" iPhone (required), 13" iPad if the app is
       offered on iPad.
 - [ ] App description, keywords, support URL, marketing URL.
 - [x] **Sign in with Apple** (Guideline 4.8) — built: `POST /auth/apple`
-      (JWKS verification, no client secret), `expo-apple-authentication` +
+      (JWKS verification; token revocation on account deletion needs the
+      key above), `expo-apple-authentication` +
       the native button on both sign-in surfaces (iOS only), `users`
       schema takes a second provider id. See `docs/apple-sign-in.md`.
       **Left to do on your Apple Developer account**: enable the "Sign In

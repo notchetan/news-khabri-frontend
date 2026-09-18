@@ -42,8 +42,8 @@ export default function TermsOfServiceBody() {
       </ThemedText>
       <ThemedText style={styles.paragraph}>
         You can use News Khabri without an account. Signing in is optional
-        and uses your Google account; you're responsible for keeping that
-        account secure. You can delete your News Khabri account, and the
+        and uses your Google account or, on iPhone, your Apple ID; you're
+        responsible for keeping that account secure. You can delete your News Khabri account, and the
         data synced to it, at any time from the Profile screen. See the
         Privacy Policy for what signing in stores.
       </ThemedText>

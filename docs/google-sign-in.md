@@ -136,3 +136,28 @@ them as public, unlike the backend's `JWT_SECRET`. This must be the exact
 same Google Cloud Console "Web application" OAuth client ID as the
 backend's own `GOOGLE_WEB_CLIENT_ID` - see the backend doc for why the web
 client (not an Android-specific one) is used even for an Android sign-in.
+
+## `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
+
+iOS additionally needs an **iOS** OAuth client (Google Cloud Console ->
+Credentials -> Create OAuth client -> iOS, bundle ID `com.newskhabri.app`).
+Without it the native Google SDK has no client id and no URL scheme to
+return to, so the Google button fails on iPhone - an App Review rejection,
+since the button is shown there. Set its client id (the full
+`...apps.googleusercontent.com` string) in `.env` and it's used twice:
+
+- `GoogleSignin.configure({ iosClientId })` in `contexts/auth-context.tsx`;
+- `app.config.js` derives the plugin's `iosUrlScheme` (the reversed id)
+  from it - the reason that file exists, since static `app.json` can't read
+  env. With no value the plugin is registered bare, which is harmless on
+  Android.
+
+`app.config.js` throws when `EAS_BUILD_PLATFORM=ios` and the id is unset,
+so an iOS build can't go out without it. The token's `aud` is still the
+*web* client id (because `webClientId` is passed too), so the backend needs
+no change.
+
+Android release builds need the reverse kind of setup: the **SHA-1** of
+both the Play App Signing key (Play Console -> App integrity) and the EAS
+upload key (`eas credentials`) registered on an Android OAuth client for
+`com.newskhabri.app`, or every Play install fails with `DEVELOPER_ERROR`.

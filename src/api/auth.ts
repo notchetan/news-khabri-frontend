@@ -49,14 +49,17 @@ export async function signInWithGoogle(idToken: string): Promise<AuthResponse> {
 
 // Sign in with Apple. `fullName` is only non-null on a device's very first
 // authorization for this app - Apple never sends it again - so the backend
-// only uses it to fill an empty name. See the backend's docs/apple-sign-in.md.
+// only uses it to fill an empty name. `authorizationCode` lets the backend
+// revoke the Apple tokens on account deletion (Apple requires it). See the
+// backend's docs/apple-sign-in.md.
 export async function signInWithApple(
   identityToken: string,
-  fullName?: { givenName?: string | null; familyName?: string | null } | null
+  fullName?: { givenName?: string | null; familyName?: string | null } | null,
+  authorizationCode?: string | null
 ): Promise<AuthResponse> {
   return apiFetch("/auth/apple", {
     method: "POST",
-    body: { identityToken, fullName: fullName ?? null },
+    body: { identityToken, fullName: fullName ?? null, authorizationCode: authorizationCode ?? null },
     errorMessage: "Failed to sign in with Apple",
   });
 }
