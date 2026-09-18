@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // Generates the light/dark/tinted base app icons by recolouring the
-// existing "N" mark (assets/images/icon.png).
+// existing "N" mark (assets/images/icon.png), plus the transparent
+// splash-icon.png.
 //
 // Per pixel: take luminance, run it through a smoothstep so the mark stays
 // crisp, then lerp between a "mark" colour and a "background" colour. The
@@ -47,6 +48,25 @@ function recolour(src, mark, bg) {
   return out;
 }
 
+// The splash / onboarding mark: icon.png's own colours with the cream
+// background knocked out to transparency, so it sits on the dark splash
+// background too. Edge pixels are un-mixed from the background so they
+// don't leave a cream halo.
+function knockOutBackground(src, bg) {
+  const out = new PNG({ width: src.width, height: src.height });
+  for (let i = 0; i < src.data.length; i += 4) {
+    const px = [src.data[i], src.data[i + 1], src.data[i + 2]];
+    const lum = (0.299 * px[0] + 0.587 * px[1] + 0.114 * px[2]) / 255;
+    const a = 1 - smoothstep(0.55, 0.8, lum);
+    for (let c = 0; c < 3; c += 1) {
+      const unmixed = a > 0 ? (px[c] - (1 - a) * bg[c]) / a : 0;
+      out.data[i + c] = Math.round(Math.max(0, Math.min(255, unmixed)));
+    }
+    out.data[i + 3] = Math.round(a * 255);
+  }
+  return out;
+}
+
 function main() {
   const src = PNG.sync.read(fs.readFileSync(SRC));
   fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -65,6 +85,10 @@ function main() {
     fs.writeFileSync(file, PNG.sync.write(png));
     console.log(`wrote ${path.relative(process.cwd(), file)}`);
   }
+
+  const splash = path.join(__dirname, "..", "assets", "images", "splash-icon.png");
+  fs.writeFileSync(splash, PNG.sync.write(knockOutBackground(src, hexToRgb("#FAF7F2"))));
+  console.log(`wrote ${path.relative(process.cwd(), splash)}`);
 }
 
 main();

@@ -44,7 +44,13 @@ only while `interval !== 0`, that reads the `storyId` out of the
 notification's `data` payload (set server-side - see the backend's
 `services/push-notifications.js`) and pushes straight to `/story/[id]`,
 the same destination `StoryList` itself navigates to for a real
-(non-singleton) story. `Notifications.setNotificationHandler` (so a
+(non-singleton) story. A tap that *cold-launches* the app fires before
+that listener exists, so the same effect also reads
+`getLastNotificationResponse()` once and navigates to it, then calls
+`clearLastNotificationResponse()` so the effect re-running (an interval
+change) can't open it again. The effect waits for
+`hasCompletedOnboarding === true`, so the Stack is mounted before it
+navigates. `Notifications.setNotificationHandler` (so a
 notification that arrives while the app is already open actually shows,
 not just when backgrounded) is configured the first time
 `registerForPushNotifications` successfully loads the module, not at

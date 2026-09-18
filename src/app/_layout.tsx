@@ -169,19 +169,28 @@ function AppContent() {
   // - see "Why expo-notifications is required lazily, not imported" in that
   // same doc for why this can't be a top-level import.
   useEffect(() => {
-    if (notificationInterval === 0) return;
+    // Wait for onboarding to resolve so the Stack is mounted to navigate in.
+    if (notificationInterval === 0 || hasCompletedOnboarding !== true) return;
     try {
       const Notifications: typeof import("expo-notifications") = require("expo-notifications");
-      const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const openStory = (response: import("expo-notifications").NotificationResponse) => {
         const storyId = response.notification.request.content.data?.storyId;
         if (storyId == null) return;
         router.push(storyHref(String(storyId)));
-      });
+      };
+      // A tap that cold-launched the app fired before this listener
+      // existed; handle it once, then clear it so a re-run can't repeat it.
+      const launchResponse = Notifications.getLastNotificationResponse();
+      if (launchResponse) {
+        Notifications.clearLastNotificationResponse();
+        openStory(launchResponse);
+      }
+      const subscription = Notifications.addNotificationResponseReceivedListener(openStory);
       return () => subscription.remove();
     } catch {
       return undefined;
     }
-  }, [router, notificationInterval]);
+  }, [router, notificationInterval, hasCompletedOnboarding]);
 
   // Nothing to render yet - the native splash screen (see
   // SplashScreen.preventAutoHideAsync() above) just stays up a little
