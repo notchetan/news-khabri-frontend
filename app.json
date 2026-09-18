@@ -69,6 +69,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 160,
           "dark": {
+            "image": "./assets/images/splash-icon.png",
             "backgroundColor": "#17140F"
           }
         }
@@ -83,7 +84,13 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#9E4E29"
+        }
+      ],
       "@react-native-google-signin/google-signin",
       "expo-apple-authentication",
       "expo-secure-store",
